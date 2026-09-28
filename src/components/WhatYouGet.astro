@@ -1,6 +1,7 @@
 ---
 import HandBackCard from './HandBackCard.astro';
 import { SECTIONS } from '../config';
+import { CATEGORIES } from '../data/categories';
 ---
 
 <section id={SECTIONS.whatYouGet} aria-labelledby="get-heading" class="section container-page">
@@ -18,9 +19,13 @@ import { SECTIONS } from '../config';
       <p class="get__kicker">No verdict. We don’t do verdicts. We do homework.</p>
     </div>
 
-    <div class="get__card">
-      <HandBackCard />
-    </div>
+    {
+      CATEGORIES.map((cat) => (
+        <div class="get__card" data-cat={cat}>
+          <HandBackCard category={cat} />
+        </div>
+      ))
+    }
   </div>
 </section>
 

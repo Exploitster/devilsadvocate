@@ -1,24 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
+import CategoryTabs from '../components/CategoryTabs.astro';
 import Why from '../components/Why.astro';
-import Modes from '../components/Modes.astro';
-import Bring from '../components/Bring.astro';
+import WhatItDoes from '../components/WhatItDoes.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import TrySample from '../components/TrySample.astro';
 import WhatYouGet from '../components/WhatYouGet.astro';
 import Refuse from '../components/Refuse.astro';
 import Faq from '../components/Faq.astro';
 import Pricing from '../components/Pricing.astro';
-import HowItWorks from '../components/HowItWorks.astro';
 import Waitlist from '../components/Waitlist.astro';
 import { WAITLIST_ON } from '../config';
 ---
 
 <Base>
   <Hero />
+  {/* Everything from here to Pricing follows the tab picked here. */}
+  <CategoryTabs />
   <Why />
-  <Modes />
-  <Bring />
+  <WhatItDoes />
   <HowItWorks />
+  <TrySample />
   <WhatYouGet />
   <Pricing />
   <Refuse />

@@ -1,0 +1,782 @@
+---
+/**
+ * "Try a sample debate": pre-written conversations, three per category.
+ * There's no input: pick a sample and sample.ts plays it, answers and all.
+ * The stage tabs under the chat follow along on their own (and jump to a
+ * stage when pressed); the hand-back card fills in as the debate goes.
+ *
+ * Every message is in the page from the start, so screen readers and
+ * people without JavaScript get the whole conversation and the finished
+ * card. Only the look of it plays out.
+ */
+import UserLine from './UserLine.astro';
+import ProductLine from './ProductLine.astro';
+import Receipt from './Receipt.astro';
+import { CATEGORIES, CATEGORY } from '../data/categories';
+import { SAMPLES, STAGES } from '../data/samples';
+import { SECTIONS, WAITLIST_ON } from '../config';
+
+const NOTE = {
+  startup: 'Samples use made-up startups, labeled as illustrative. The real thing cites sources.',
+  philosophy: 'The sources are real; the lines are paraphrases, not quotes. The conversation is a sample.',
+};
+---
+
+<section id={SECTIONS.trySample} aria-labelledby="try-heading" class="section container-page">
+  <div class="try-head">
+    <h2 id="try-heading">Try a sample debate</h2>
+    <ProductLine size="lg" class="try-head__sub">
+      Pick a sample and watch it argue. The answers are already filled in, so there’s nothing to type. The real thing
+      argues with whatever you bring.
+    </ProductLine>
+  </div>
+
+  {
+    CATEGORIES.map((cat) => (
+      <div class="try" data-try data-cat={cat}>
+        <div class="try__tabs" role="tablist" aria-label={`${CATEGORY[cat].label} samples`} data-sample-tabs>
+          {SAMPLES[cat].map((s, k) => (
+            <button
+              type="button"
+              role="tab"
+              class="try__tab"
+              id={`sample-tab-${s.id}`}
+              aria-controls={`sample-${s.id}`}
+              aria-selected={k === 0 ? 'true' : 'false'}
+              tabindex={k === 0 ? 0 : -1}
+              data-sample-tab={k}
+            >
+              <span class="try__tab-title">{s.tab}</span>
+              <span class="try__tab-kind">{s.kind}</span>
+            </button>
+          ))}
+        </div>
+
+        {SAMPLES[cat].map((s, k) => (
+          <div
+            class="try__panel"
+            role="tabpanel"
+            id={`sample-${s.id}`}
+            aria-labelledby={`sample-tab-${s.id}`}
+            data-sample={k}
+            hidden={k !== 0}
+          >
+            <div class="try__grid">
+              <div class="chat">
+                <div class="chat__bar">
+                  <div>
+                    <p class="chat__title">Devils Advocate</p>
+                    <p class="chat__mode">{CATEGORY[cat].mode}</p>
+                  </div>
+                  <button type="button" class="chat__toggle" data-toggle>
+                    Pause
+                  </button>
+                </div>
+
+                <div class="chat__stages" data-stages>
+                  <ol class="stages" role="list" aria-label="Stages of the debate">
+                    {STAGES[cat].map((label, n) => (
+                      <li>
+                        <button type="button" class="stage" data-go={n}>
+                          <span class="stage__num" aria-hidden="true">
+                            {n + 1}
+                          </span>
+                          <span class="stage__label">{label}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <ol class="chat__log" role="list" tabindex="0" aria-label="Sample conversation" data-log>
+                  <li class="msg" data-stage="0" data-kind="type">
+                    <div class="msg__in">
+                      <UserLine size="sm">
+                        <span class="sr-only-text">{s.opening}</span>
+                        <span aria-hidden="true" data-type>
+                          {s.opening}
+                        </span>
+                      </UserLine>
+                    </div>
+                  </li>
+
+                  {s.questions.map((q) => (
+                    <>
+                      <li class="msg" data-stage="1" data-kind="product">
+                        <div class="msg__in">
+                          <ProductLine size="sm">{q.q}</ProductLine>
+                        </div>
+                      </li>
+                      <li class="msg msg--chips" data-stage="1" data-kind="chips" data-pick={q.pick} aria-hidden="true">
+                        <div class="msg__in">
+                          <span class="chips">
+                            {q.options.map((o) => (
+                              <span class="chip">{o}</span>
+                            ))}
+                          </span>
+                        </div>
+                      </li>
+                      <li class="msg" data-stage="1" data-kind="user">
+                        <div class="msg__in">
+                          <UserLine size="sm">{q.options[q.pick]}</UserLine>
+                        </div>
+                      </li>
+                    </>
+                  ))}
+
+                  <li class="msg" data-stage="2" data-kind="product">
+                    <div class="msg__in">
+                      <ProductLine size="sm" bodyAs="div">
+                        <p>
+                          <strong class="lead">The real question:</strong> {s.realQuestion}
+                        </p>
+                        {s.bias && (
+                          <p>
+                            <strong class="lead">Bias spotted:</strong> {s.bias}
+                          </p>
+                        )}
+                      </ProductLine>
+                    </div>
+                  </li>
+
+                  <li class="msg" data-stage="3" data-kind="product">
+                    <div class="msg__in">
+                      <ProductLine size="sm" bodyAs="div">
+                        <p class="lead">What’s genuinely strong in your case:</p>
+                        <ul class="points" role="list">
+                          {s.caseFor.map((c) => (
+                            <li>
+                              {c.text}
+                              {c.source && (
+                                <>
+                                  {' '}
+                                  <Receipt>{c.source}</Receipt>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </ProductLine>
+                    </div>
+                  </li>
+                  <li class="msg" data-stage="3" data-kind="product">
+                    <div class="msg__in">
+                      <ProductLine size="sm" bodyAs="div">
+                        <p class="lead">The strongest other side:</p>
+                        <ul class="points points--receipts" role="list">
+                          {s.otherSide.map((r) => (
+                            <li>
+                              <Receipt>{r.source}</Receipt>
+                              <span class="points__text">{r.point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <p class="msg__note">{s.note}</p>
+                      </ProductLine>
+                    </div>
+                  </li>
+
+                  <li class="msg" data-stage="4" data-kind="user">
+                    <div class="msg__in">
+                      <UserLine size="sm">{s.pushback}</UserLine>
+                    </div>
+                  </li>
+                  <li class="msg" data-stage="4" data-kind="product">
+                    <div class="msg__in">
+                      <ProductLine size="sm">{s.reply}</ProductLine>
+                    </div>
+                  </li>
+
+                  <li class="msg" data-stage="5" data-kind="product">
+                    <div class="msg__in">
+                      <ProductLine size="sm">Here’s your hand-back card. No verdict. Your call, always.</ProductLine>
+                    </div>
+                  </li>
+
+                  <li class="msg msg--dots" aria-hidden="true" data-dots>
+                    <div class="msg__in">
+                      <span class="chat-dots">
+                        <span />
+                        <span />
+                        <span />
+                      </span>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+
+              <article class="try-card" aria-labelledby={`sample-card-${s.id}`}>
+                <header class="try-card__head">
+                  <p class="try-card__title" id={`sample-card-${s.id}`}>
+                    Hand-back card
+                  </p>
+                  <p class="try-card__fills" data-fills>
+                    Fills in as the debate goes
+                  </p>
+                </header>
+
+                <div class="part" data-fill="0">
+                  <h3 class="part__label">Your position</h3>
+                  <div class="part__slot">
+                    <div class="part__value">
+                      <UserLine size="sm" speaker={false}>
+                        {s.card.position}
+                      </UserLine>
+                    </div>
+                    <span class="part__wait" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <div class="part" data-fill="3">
+                  <h3 class="part__label">What’s genuinely strong</h3>
+                  <div class="part__slot">
+                    <p class="part__value part__prose">{s.card.strong}</p>
+                    <span class="part__wait" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <div class="part" data-fill="3">
+                  <h3 class="part__label">Toughest counterpoints</h3>
+                  <div class="part__slot">
+                    <ul class="part__value part__chips" role="list">
+                      {s.otherSide.map((r) => (
+                        <li>
+                          <Receipt>{r.source}</Receipt>
+                        </li>
+                      ))}
+                    </ul>
+                    <span class="part__wait" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <div class="part" data-fill="4">
+                  <h3 class="part__label">Open questions only you can answer</h3>
+                  <div class="part__slot">
+                    <ul class="part__value part__list" role="list">
+                      {s.card.questions.map((q) => (
+                        <li>{q}</li>
+                      ))}
+                    </ul>
+                    <span class="part__wait" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <div class="part" data-fill="5">
+                  <h3 class="part__label">Cheapest test this month</h3>
+                  <div class="part__slot">
+                    <p class="part__value part__prose">{s.card.test}</p>
+                    <span class="part__wait" aria-hidden="true" />
+                  </div>
+                </div>
+
+              </article>
+            </div>
+
+            <div class="try__change part" data-fill="5">
+              <h3 class="part__label">What changed</h3>
+              <div class="part__slot">
+                <dl class="part__value change">
+                  <div class="change__row">
+                    <dt>Walked in with</dt>
+                    <dd>{s.change.before}</dd>
+                  </div>
+                  <div class="change__row change__row--after">
+                    <dt>Walking out with</dt>
+                    <dd>{s.change.after}</dd>
+                  </div>
+                </dl>
+                <span class="part__wait" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <p class="try__note">{NOTE[cat]}</p>
+
+        {WAITLIST_ON && (
+          <div class="try__cta">
+            <ProductLine size="lg" speaker={false}>
+              Want it to argue with your own {CATEGORY[cat].noun}?
+            </ProductLine>
+            <a href={`#${SECTIONS.waitlist}`} class="btn-primary">
+              Join the waitlist
+            </a>
+          </div>
+        )}
+      </div>
+    ))
+  }
+</section>
+
+<script>
+  import { initSamples } from '../scripts/sample';
+  initSamples();
+</script>
+
+<style is:global>
+  .try-head__sub {
+    margin-top: 1.25rem;
+    max-width: 44rem;
+  }
+
+  .try {
+    margin-top: 2.5rem;
+  }
+
+  /* Sample tabs: a real tablist. */
+  .try__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  /* The controls need JavaScript; without it you get the first sample,
+     finished. The player (Pause/Play, "Fills in...") also needs motion. */
+  html:not(.js) .try__tabs,
+  html:not(.js) .chat__stages,
+  html:not(.js) .chat__toggle,
+  html:not(.js) .try-card__fills,
+  .try-card__fills[hidden] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chat__toggle,
+    .try-card__fills {
+      display: none;
+    }
+  }
+  .try__tab {
+    flex: none;
+    display: grid;
+    min-height: 3.25rem;
+    padding: 0.5rem 1rem;
+    border: 1.5px solid var(--rule);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    text-align: left;
+    line-height: 1.25;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+  .try__tab:hover {
+    border-color: var(--ink-muted);
+  }
+  .try__tab[aria-selected='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .try__tab-title {
+    font-weight: 600;
+  }
+  .try__tab-kind {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+  }
+  .try__tab[aria-selected='true'] .try__tab-kind {
+    color: color-mix(in srgb, var(--paper) 80%, var(--ink));
+  }
+
+  .try__grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  /* Desktop: chat and card side by side, the same height. */
+  @media (min-width: 64rem) {
+    .try__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: 2rem;
+    }
+    .try__grid .chat__log {
+      flex: 1 1 0;
+      height: auto;
+      min-height: 26rem;
+    }
+  }
+
+  /* The chat window */
+  .chat {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1.5px solid var(--ink);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+  .chat__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1rem 0.75rem 1.125rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .chat__title {
+    font-family: var(--font-product);
+    font-size: 1.0625rem;
+    font-weight: 580;
+    line-height: 1.3;
+  }
+  .chat__mode {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--ink-muted);
+  }
+  .chat__toggle {
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-control);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chat__toggle:hover {
+    border-color: var(--ink-muted);
+  }
+
+  /* Stages: they move on their own, and jump when pressed. */
+  .chat__stages {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+  .stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2.5rem;
+    padding: 0 0.75rem 0 0.375rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+  .stage:hover {
+    color: var(--ink);
+  }
+  .stage__num {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    transition: background-color 200ms ease;
+  }
+  .stage[data-state='done'] {
+    color: var(--ink);
+  }
+  .stage[aria-current='step'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Phones: numbers only, except the stage it's on. */
+  @media (max-width: 47.999rem) {
+    .stages {
+      flex-wrap: nowrap;
+      justify-content: space-between;
+    }
+    .stage {
+      padding-right: 0.375rem;
+    }
+    .stage:not([aria-current='step']) .stage__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .stage[aria-current='step'] {
+      padding-right: 0.75rem;
+    }
+  }
+
+  /* The conversation scrolls inside the window, newest at the bottom. */
+  .chat__log {
+    display: flex;
+    flex-direction: column;
+    height: clamp(22rem, 58svh, 32rem);
+    padding: 0.25rem 1.125rem 1.25rem 0.875rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .chat__log:focus-visible {
+    outline-offset: -3px;
+  }
+  .msg__in {
+    padding-top: 0.875rem;
+  }
+  .msg .lead {
+    font-weight: 600;
+  }
+  .points {
+    display: grid;
+    gap: 0.625rem;
+    margin-top: 0.5rem;
+  }
+  .points--receipts li {
+    display: grid;
+    justify-items: start;
+    gap: 0.25rem;
+  }
+  .msg__note {
+    margin-top: 0.625rem;
+    font-family: var(--font-user);
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+  }
+
+  /* Quick replies the sample "taps"; only shown while it plays. */
+  .msg--chips,
+  .msg--dots {
+    display: none;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+  .chip {
+    padding: 0.375rem 0.75rem;
+    border: 1.5px solid var(--rule);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    transition:
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  .chip.is-picked {
+    border-color: var(--you);
+    background: color-mix(in srgb, var(--you) 14%, var(--surface));
+  }
+
+  .chat-dots {
+    display: inline-flex;
+    gap: 0.3rem;
+    margin-left: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--devil) 10%, var(--surface));
+  }
+  .chat-dots span {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--devil);
+    opacity: 0.5;
+  }
+
+  /* With JavaScript and motion, messages wait folded until the player
+     reaches them, then unfold. */
+  @media (prefers-reduced-motion: no-preference) {
+    html.js .try .msg {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition:
+        grid-template-rows 340ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        opacity 260ms ease 60ms;
+    }
+    html.js .try .msg > .msg__in {
+      min-height: 0;
+      overflow: hidden;
+    }
+    html.js .try .msg[data-shown] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    html.js .try .msg[data-instant] {
+      transition: none;
+    }
+    html.js .try .msg--dots[data-shown] .chat-dots span {
+      animation: sample-bounce 900ms ease-in-out infinite;
+    }
+    html.js .try .msg--dots[data-shown] .chat-dots span:nth-child(2) {
+      animation-delay: 150ms;
+    }
+    html.js .try .msg--dots[data-shown] .chat-dots span:nth-child(3) {
+      animation-delay: 300ms;
+    }
+  }
+  @keyframes sample-bounce {
+    0%,
+    100% {
+      transform: none;
+      opacity: 0.45;
+    }
+    40% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+
+  /* The hand-back card that builds itself. */
+  .try-card {
+    overflow: hidden;
+    border: 1.5px solid var(--ink);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+  .try-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.875rem 1.125rem;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .try-card__title {
+    font-family: var(--font-product);
+    font-size: var(--step-1);
+    font-weight: 580;
+    line-height: 1.2;
+  }
+  .try-card__fills {
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--paper) 80%, var(--ink));
+  }
+  .part {
+    display: grid;
+    gap: 0.375rem;
+    padding: 0.875rem 1.125rem;
+  }
+  .part + .part {
+    border-top: 1px dashed color-mix(in srgb, var(--ink) 28%, transparent);
+  }
+  .part__label {
+    font-family: var(--font-user);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    color: var(--ink-muted);
+  }
+  .part__slot {
+    display: grid;
+  }
+  .part__slot > * {
+    grid-area: 1 / 1;
+  }
+  .part__prose {
+    font-family: var(--font-product);
+    font-size: 1.0625rem;
+    line-height: 1.45;
+  }
+  .part__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+  .part__list {
+    display: grid;
+    gap: 0.25rem;
+  }
+  .part__list li {
+    position: relative;
+    padding-left: 1.125rem;
+  }
+  .part__list li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: var(--ink-muted);
+  }
+  .part__wait {
+    display: none;
+  }
+
+  .change {
+    display: grid;
+    gap: 0.625rem;
+  }
+  .change__row {
+    display: grid;
+    gap: 0.125rem;
+  }
+  .change dt {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+  }
+  .change dd {
+    line-height: 1.45;
+  }
+  .change__row--after dd {
+    font-family: var(--font-product);
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+  /* What changed: the point of the whole exercise, under the chat. */
+  .try__change {
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem 1.125rem;
+    border: 1.5px solid var(--you);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--you) 7%, var(--surface));
+  }
+  @media (min-width: 48rem) {
+    .change {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 2rem;
+    }
+  }
+
+  /* With JavaScript and motion, each part waits as a placeholder until
+     the debate gets there, then fills. */
+  @media (prefers-reduced-motion: no-preference) {
+    html.js .try .part__value {
+      opacity: 1;
+      transition: opacity 360ms ease;
+    }
+    html.js .try .part:not([data-filled]) .part__value {
+      opacity: 0;
+    }
+    html.js .try .part__wait {
+      display: block;
+      align-self: start;
+      height: 2.5rem;
+      border-radius: 0.375rem;
+      background:
+        linear-gradient(var(--rule), var(--rule)) 0 0.25rem / 85% 0.625rem no-repeat,
+        linear-gradient(var(--rule), var(--rule)) 0 1.5rem / 55% 0.625rem no-repeat;
+      transition: opacity 240ms ease;
+    }
+    html.js .try .part[data-filled] .part__wait {
+      opacity: 0;
+    }
+  }
+
+  .try__note {
+    margin-top: 1.25rem;
+    max-width: var(--measure);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+  }
+
+  .try__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+    margin-top: 3rem;
+  }
+</style>

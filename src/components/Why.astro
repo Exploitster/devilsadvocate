@@ -1,4 +1,5 @@
 ---
+import { CATEGORIES, WHY } from '../data/categories';
 import { SECTIONS } from '../config';
 ---
 
@@ -6,22 +7,22 @@ import { SECTIONS } from '../config';
   <div class="split">
     <h2 id="why-heading" class="split__head">The people who love you are terrible at this.</h2>
 
-    <div class="split__body">
-      {/* Everyone else's opinion, one per line and muted: none
-           of them get a speech mark, because none of them bring sources. */}
-      <p class="why__others">
-        <span>Your friends say it’s genius.</span>
-        <span>Your parents say be careful.</span>
-        <span>The internet says quit your job.</span>
-        <span class="why__verdict">Nobody shows their sources.</span>
-      </p>
+    {
+      CATEGORIES.map((cat) => (
+        <div class="split__body" data-cat={cat}>
+          {/* Everyone else's opinion, one per line and muted: none of them
+              get a speech mark, because none of them bring sources. */}
+          <p class="why__others">
+            {WHY[cat].others.map((line) => (
+              <span>{line}</span>
+            ))}
+            <span class="why__verdict">Nobody shows their sources.</span>
+          </p>
 
-      <p class="why__body">
-        For every delivery app on your phone, there’s a graveyard of food apps nobody remembers. That’s survivorship bias: you only hear
-        from the ones who made it, because the ones who didn’t aren’t posting about it. We give tours of the graveyard,
-        so you don’t have to move in.
-      </p>
-    </div>
+          <p class="why__body">{WHY[cat].body}</p>
+        </div>
+      ))
+    }
   </div>
 </section>
 

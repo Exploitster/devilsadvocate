@@ -1,404 +1,602 @@
 ---
+/**
+ * "How it works": seven steps, played by scrolling.
+ *
+ * Each category has two versions of the same content, and CSS picks one
+ * (so nothing flips when the page loads):
+ *   - a plain list: every step with its phone, stacked. That's what shows
+ *     without JavaScript, with reduced motion, and on screens too short
+ *     for the stage (story.ts then animates each phone as it arrives);
+ *   - a stage: a tall track with a sticky panel. Scrolling through the
+ *     track moves the steps along: the rail fills, the text changes, and
+ *     the phone plays that step. The rail's numbers jump to a step.
+ */
+import PhoneFrame from './PhoneFrame.astro';
 import JourneyShot from './JourneyShot.astro';
-import { MODES, MODE_LABEL, STEPS } from '../data/journey';
-import { SECTIONS, WAITLIST_ON } from '../config';
+import StepScreen from './StepScreen.astro';
+import { CATEGORIES, CATEGORY } from '../data/categories';
+import { STEPS } from '../data/journey';
+import { SECTIONS } from '../config';
 ---
 
 <section id={SECTIONS.howItWorks} aria-labelledby="journey-heading" class="section container-page">
-  <h2 id="journey-heading" class="max-w-[20ch]">Here’s exactly what will happen when you show up</h2>
+  <div class="story-head">
+    <h2 id="journey-heading" class="max-w-[20ch]">Here’s exactly what will happen when you show up</h2>
+    <p class="story-head__hint">Keep scrolling. It plays out one step at a time.</p>
+    <a href={`#${SECTIONS.trySample}`} class="story-head__skip link-quiet">Skip to the sample debate</a>
+  </div>
 
-  {/*
-    Without JavaScript this is a plain ordered list: every step, its text,
-    and its idea-mode mockup, stacked. journey.ts turns it into a stepper,
-    with a sticky phone beside the list on desktop.
-  */}
-  <div class="journey" data-journey>
-    <fieldset class="journey__modes" data-modes hidden>
-      <legend class="sr-only-text">Example to show</legend>
-      {
-        MODES.map((mode) => (
-          <label class="journey__mode">
-            <input type="radio" name="journey-mode" value={mode} checked={mode === 'idea'} />
-            <span>{MODE_LABEL[mode]}</span>
-          </label>
-        ))
-      }
-    </fieldset>
-
-    <p class="sr-only-text" aria-live="polite" data-live></p>
-
-    <div class="journey__body">
-      <div class="journey__main">
-        <ol class="journey__steps" role="list" data-steps>
-          {
-            STEPS.map((step, i) => (
-              <li class="step" data-step={i + 1}>
-                <h3 class="step__heading" data-step-heading>
-                  <span class="step__num" aria-hidden="true">
-                    {i + 1}
-                  </span>
+  {
+    CATEGORIES.map((cat) => (
+      <div class="story" data-story data-cat={cat}>
+        <ol class="story-list" role="list">
+          {STEPS.map((step, i) => (
+            <li class="story-list__step">
+              <h3 class="story-list__title">
+                <span class="story-num" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span>
                   <span class="sr-only-text">Step {i + 1}: </span>
-                  <span class="step__title">{step.title}</span>
-                </h3>
-                <div class="step__panel" id={`journey-step-${i + 1}`}>
-                  <p class="step__body">{step.body}</p>
-                  <div class="journey__slot" data-shot-slot>
-                    {MODES.map((mode) => (
-                      <JourneyShot step={i + 1} mode={mode} />
-                    ))}
-                  </div>
-                  <div data-nav-slot />
-                </div>
-              </li>
-            ))
-          }
+                  {step.title}
+                </span>
+              </h3>
+              <p class="story-list__body">{step.body[cat]}</p>
+              <div class="story-list__phone">
+                <JourneyShot step={i + 1} category={cat} />
+              </div>
+            </li>
+          ))}
         </ol>
 
-        <div data-nav-home>
-          <div class="journey__nav" data-nav hidden>
-            <button type="button" class="journey__back" data-back>Back</button>
-            <p class="journey__count" data-count aria-hidden="true">Step 1 of 7</p>
-            <button type="button" class="btn-primary journey__next" data-next>Next</button>
-            {
-              WAITLIST_ON && (
-                <a href={`#${SECTIONS.waitlist}`} class="btn-primary journey__join" data-join hidden>
-                  Join the waitlist
-                </a>
-              )
-            }
+        <div class="story-track" data-track>
+          <div class="story-pin" data-pin>
+            <div class="story-rail" data-rail>
+              <span class="story-rail__line" aria-hidden="true">
+                <span class="story-rail__fill" />
+              </span>
+              <ol class="story-rail__steps" role="list">
+                {STEPS.map((step, i) => (
+                  <li>
+                    <button type="button" class="rail-step" data-go={i} aria-current={i === 0 ? 'step' : undefined}>
+                      <span class="rail-step__num" aria-hidden="true">
+                        {i + 1}
+                      </span>
+                      <span class="rail-step__title">
+                        <span class="sr-only-text">Step {i + 1}: </span>
+                        {step.title}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div class="story-texts">
+              {STEPS.map((step, i) => (
+                <div class="story-text" data-text={i} data-pos="after" data-active={i === 0 ? '' : undefined}>
+                  <p class="story-text__count">
+                    Step {i + 1} of {STEPS.length}
+                  </p>
+                  <h3 class="story-text__title">{step.title}</h3>
+                  <p class="story-text__body">{step.body[cat]}</p>
+                </div>
+              ))}
+            </div>
+
+            <div class="story-phone" data-phone-wrap>
+              <PhoneFrame label={`Mockup of each step, ${CATEGORY[cat].label.toLowerCase()} example`} subtitle={CATEGORY[cat].mode}>
+                <div class="screens">
+                  {STEPS.map((_, i) => (
+                    <div class="screen" data-screen={i} data-active={i === 0 ? '' : undefined}>
+                      <StepScreen step={i + 1} category={cat} />
+                    </div>
+                  ))}
+                </div>
+              </PhoneFrame>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="journey__stage" data-stage></div>
-    </div>
-  </div>
+        <p class="sr-only-text" aria-live="polite" data-story-live />
+      </div>
+    ))
+  }
 </section>
 
 <script>
-  import { initJourney } from '../scripts/journey';
-  initJourney();
+  import { initStory } from '../scripts/story';
+  initStory();
 </script>
 
 <style is:global>
-  /* ---------------------------------------------------------------- */
-  /* Base: the no-JavaScript list, which is also the phone layout.     */
-  /* ---------------------------------------------------------------- */
+  .story-head__hint {
+    margin-top: 1rem;
+    color: var(--ink-muted);
+  }
+  .story-head__skip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-top: 0.25rem;
+  }
+  .story-head__hint,
+  .story-head__skip {
+    display: none;
+  }
 
-  .journey {
+  .story {
     margin-top: 2.5rem;
   }
 
-  .journey__steps {
+  /* One version at a time: the stage needs JavaScript, motion, and room
+     under the header and tabs (keep in step with STAGE in story.ts). */
+  .story-track {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) and (min-height: 44.625rem),
+    (prefers-reduced-motion: no-preference) and (min-width: 64rem) and (min-height: 40.875rem) {
+    html.js .story-track {
+      display: block;
+    }
+    html.js .story-list {
+      display: none;
+    }
+    html.js .story-head__hint {
+      display: block;
+    }
+    html.js .story-head__skip {
+      display: inline-flex;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* The list                                                          */
+  /* ---------------------------------------------------------------- */
+
+  .story-list {
     display: grid;
+    gap: 3.5rem;
   }
-
-  .step {
-    position: relative;
-    display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr);
-    column-gap: 1rem;
-    padding-bottom: 2rem;
-  }
-
-  /* The rail that joins one number to the next. */
-  .step:not(:last-child)::before {
-    content: '';
-    position: absolute;
-    top: 2.25rem;
-    bottom: 0;
-    left: calc(1.125rem - 0.75px);
-    width: 1.5px;
-    background: var(--rule);
-  }
-
-  /* The heading spans both columns; with JS a button fills it. Both lay
-     out the same way, so the page doesn't shift when it enhances. */
-  .step__heading {
-    grid-column: 1 / -1;
+  .story-list__title {
     display: flex;
-  }
-  .step__heading,
-  .step__head {
     align-items: center;
-    gap: 1rem;
+    gap: 0.875rem;
+    font-size: var(--step-2);
+    font-weight: 560;
+    line-height: 1.2;
+  }
+  .story-list__body {
+    max-width: 52ch;
+    margin-top: 0.75rem;
+  }
+  .story-list__phone {
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 64rem) {
+    .story-list__step {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(3rem, 6vw, 6rem);
+    }
+    .story-list__phone {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      margin-top: 0;
+    }
   }
 
-  .step__num {
+  .story-num {
     flex: none;
     display: grid;
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
-    border: 1.5px solid var(--ink-muted);
+    border: 1.5px solid var(--ink);
     border-radius: 50%;
-    background: var(--paper);
     font-family: var(--font-product);
     font-size: 1.0625rem;
     font-weight: 600;
     line-height: 1;
-    color: var(--ink);
   }
 
-  .step__title {
-    font-family: var(--font-product);
-    font-size: var(--step-1);
-    font-weight: 560;
-    line-height: 1.25;
-  }
+  /* ---------------------------------------------------------------- */
+  /* The stage                                                         */
+  /* ---------------------------------------------------------------- */
 
-  .step__panel {
-    grid-column: 2;
-    padding-top: 0.5rem;
+  .story {
+    /* The sticky panel fills the screen under the header and tabs; each
+       step gets --step-len of scrolling. */
+    --pin-top: calc(var(--header-h) + var(--tabs-h));
+    --pin-h: calc(100vh - var(--pin-top));
+    --step-len: 62vh;
   }
-
-  .step__body {
-    max-width: 52ch;
-  }
-
-  /* The phone sits under the step. On narrow screens it takes the full
-     width, rather than hanging off the number rail. */
-  .journey__slot {
-    display: grid;
-    margin-top: 1.5rem;
-    margin-left: calc(-3.25rem);
-  }
-  @media (min-width: 30rem) {
-    .journey__slot {
-      margin-left: 0;
-    }
-  }
-  .journey__slot > .shot,
-  .journey__stage > .shot {
-    grid-area: 1 / 1;
-    min-width: 0;
-  }
-
-  /* Every mockup stretches to the tallest one sharing its grid cell, so
-     the phone frame never changes size; only what's on screen does. */
-  .journey .shot,
-  .journey .shot .phone,
-  .journey .shot .phone__bezel {
-    display: flex;
-    flex-direction: column;
-  }
-  .journey .shot .phone,
-  .journey .shot .phone__bezel,
-  .journey .shot .phone__screen {
-    flex: 1;
-  }
-
-  /* On phones the mockup sits inline in a long page: keep it compact. */
-  @media (max-width: 63.999rem) {
-    .journey .shot .phone__screen {
-      min-height: 24rem;
+  @supports (height: 100svh) {
+    .story {
+      --pin-h: calc(100svh - var(--pin-top));
+      --step-len: 62svh;
     }
   }
 
-  /* Mode toggle: a real radio group, styled as two halves. */
-  .journey__modes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    max-width: 30rem;
-    margin: 0 0 2.5rem;
-    padding: 0.25rem;
-    border: 1px solid var(--rule);
-    border-radius: calc(var(--radius-control) + 0.25rem);
-    background: var(--surface);
-  }
-  .journey__mode {
+  .story-track {
     position: relative;
-    display: grid;
-    place-items: center;
-    min-height: 3rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-control);
-    font-size: 0.9375rem;
-    font-weight: 600;
-    line-height: 1.25;
-    text-align: center;
-    cursor: pointer;
+    height: calc(var(--pin-h) + 7 * var(--step-len));
   }
-  .journey__mode input {
+
+  .story-pin {
+    position: sticky;
+    top: var(--pin-top);
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 1rem;
+    height: var(--pin-h);
+    padding-block: 1rem 0.75rem;
+  }
+
+  /* The rail: phones get a row of numbers; desktop gets the titles too. */
+  .story-rail {
+    position: relative;
+  }
+  .story-rail__steps {
+    display: flex;
+    justify-content: space-between;
+  }
+  .story-rail__line {
+    position: absolute;
+    top: 50%;
+    right: 1.375rem;
+    left: 1.375rem;
+    height: 2px;
+    margin-top: -1px;
+    background: var(--rule);
+  }
+  .story-rail__fill {
     position: absolute;
     inset: 0;
-    opacity: 0;
-    margin: 0;
-    cursor: pointer;
-  }
-  .journey__mode:has(input:checked) {
     background: var(--ink);
-    color: var(--paper);
-  }
-  .journey__mode:has(input:focus-visible) {
-    outline: 3px solid var(--ink);
-    outline-offset: 3px;
+    transform: scaleX(var(--p, 0));
+    transform-origin: left center;
   }
 
-  /* Back / step count / Next */
-  .journey__nav {
+  .rail-step {
+    /* In the sticky stage: never count as "under the header" (see the
+       same rule on the tabs), or focusing it would scroll the page. */
+    scroll-margin-top: calc(-1 * (var(--header-h) + var(--tabs-h) + 1rem));
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: 1.75rem;
-  }
-  .journey__nav[hidden] {
-    display: none;
-  }
-  .journey__back {
-    min-height: 3rem;
-    padding: 0 1rem;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-control);
-    font-weight: 600;
-    cursor: pointer;
-  }
-  /* At either end, the control that can't go further steps aside but
-     keeps its space, so the row doesn't jump. */
-  .journey__back[aria-disabled='true'],
-  .journey__next[aria-disabled='true'] {
-    visibility: hidden;
-  }
-  .journey__count {
-    font-size: var(--step--1);
-    color: var(--ink-muted);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  /* Narrow phones: the controls use the phone's full width, and the
-     count gives way (the numbered rail already shows where you are). */
-  @media (max-width: 29.999rem) {
-    [data-nav-slot] .journey__nav {
-      margin-left: -3.25rem;
-    }
-    .journey__count {
-      display: none;
-    }
-  }
-  .journey__next,
-  .journey__join {
-    cursor: pointer;
-  }
-
-  /* ---------------------------------------------------------------- */
-  /* Enhanced: a stepper. Shared by phone and desktop.                 */
-  /* ---------------------------------------------------------------- */
-
-  .journey[data-enhanced] .step__head {
-    display: flex;
-    width: 100%;
+    gap: 0.875rem;
+    min-width: 2.75rem;
     min-height: 2.75rem;
+    padding: 0;
     text-align: left;
     cursor: pointer;
   }
-  .journey[data-enhanced] .step__head:focus-visible {
-    outline: none;
+  .rail-step__num {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
   }
-  .journey[data-enhanced] .step__head:focus-visible .step__num {
-    outline: 3px solid var(--ink);
-    outline-offset: 3px;
+  /* The visible circle sits inside the 44px tap target. */
+  .rail-step__num::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 1.375rem;
+    width: 2rem;
+    height: 2rem;
+    margin: -1rem 0 0 -1rem;
+    border: 1.5px solid var(--ink-muted);
+    border-radius: 50%;
+    background: var(--paper);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      transform 260ms cubic-bezier(0.3, 1.5, 0.5, 1);
   }
-  .journey[data-enhanced] .step__head:focus-visible .step__title {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
+  .rail-step__num {
+    position: relative;
+    z-index: 0;
+    font-family: var(--font-product);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    transition: color 200ms ease;
   }
-  .journey[data-enhanced] .step__head:hover .step__title {
-    text-decoration: underline;
-    text-decoration-color: var(--rule);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
+  .rail-step__num::before {
+    z-index: -1;
   }
-
-  .journey[data-enhanced] .step {
-    padding-bottom: 1.25rem;
+  .rail-step[data-state='done'] .rail-step__num {
+    color: var(--ink);
   }
-  .journey[data-enhanced] .step[data-state='done'] .step__num {
+  .rail-step[data-state='done'] .rail-step__num::before {
     border-color: var(--ink);
   }
-  .journey[data-enhanced] .step[data-state='active'] .step__num {
-    border-color: var(--ink);
-    background: var(--ink);
+  .rail-step[aria-current='step'] .rail-step__num {
     color: var(--paper);
   }
+  .rail-step[aria-current='step'] .rail-step__num::before {
+    border-color: var(--ink);
+    background: var(--ink);
+    transform: scale(1.12);
+  }
+  .rail-step:focus-visible {
+    outline: none;
+  }
+  .rail-step:focus-visible .rail-step__num {
+    outline: 3px solid var(--ink);
+    outline-offset: 1px;
+  }
+  .rail-step__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 
-  /* Only the chosen mode's mockup shows. Hidden mockups keep their place
-     in the grid cell, so swapping never changes the height. */
-  .journey[data-enhanced] .shot:not([data-visible]) {
-    visibility: hidden;
+  /* The text for the step you're on. The others wait above (done) or
+     below (to come), so each change slides the way you're scrolling. */
+  .story-texts {
+    display: grid;
+  }
+  .story-text {
+    grid-area: 1 / 1;
     opacity: 0;
+    visibility: hidden;
+    transform: translateY(0.75rem);
+    transition:
+      opacity 200ms ease,
+      transform 320ms ease,
+      visibility 0s linear 320ms;
+  }
+  .story-text[data-pos='before'] {
+    transform: translateY(-0.75rem);
+  }
+  .story-text[data-active] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 280ms ease 90ms,
+      transform 440ms cubic-bezier(0.2, 0.8, 0.2, 1) 90ms,
+      visibility 0s;
+  }
+  .story-text__count {
+    display: none;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-muted);
+  }
+  .story-text__title {
+    font-size: var(--step-2);
+    font-weight: 560;
+    line-height: 1.15;
+  }
+  .story-text__body {
+    max-width: 46ch;
+    margin-top: 0.375rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* The phone, scaled by story.ts to fit what's left of the screen. */
+  .story-phone {
+    display: grid;
+    justify-items: center;
+    align-items: start;
+    min-height: 0;
+    overflow: clip;
+  }
+  .story-phone > .phone {
+    transform: scale(var(--s, 1));
+    transform-origin: top center;
+  }
+
+  /* Every screen shares one cell, so the phone keeps the height of the
+     tallest one and only what's on it changes. */
+  .story .screens {
+    display: grid;
+    flex: 1;
+  }
+  .story .screen {
+    display: flex;
+    flex-direction: column;
+    grid-area: 1 / 1;
+  }
+  .story-track .screen {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 200ms ease,
+      visibility 0s linear 200ms;
+  }
+  .story-track .screen[data-active] {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 260ms ease;
+  }
+
+  /* Desktop: text and rail on the left, the phone on the right. */
+  @media (min-width: 64rem) {
+    .story-pin {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
+      grid-template-areas:
+        '. phone'
+        'text phone'
+        'rail phone'
+        '. phone';
+      column-gap: clamp(3rem, 6vw, 6rem);
+      row-gap: 2rem;
+      padding-block: 1.5rem;
+    }
+    .story-texts {
+      grid-area: text;
+    }
+    .story-rail {
+      grid-area: rail;
+    }
+    .story-phone {
+      grid-area: phone;
+      align-items: center;
+    }
+    .story-phone > .phone {
+      transform-origin: center;
+    }
+
+    .story-text__count {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .story-text__title {
+      font-size: var(--step-3);
+    }
+    .story-text__body {
+      margin-top: 0.75rem;
+      font-size: var(--step-0);
+    }
+
+    .story-rail__steps {
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .story-rail__line {
+      top: 1.375rem;
+      bottom: 1.375rem;
+      left: 1.375rem;
+      right: auto;
+      width: 2px;
+      height: auto;
+      margin: 0 0 0 -1px;
+    }
+    .story-rail__fill {
+      transform: scaleY(var(--p, 0));
+      transform-origin: center top;
+    }
+    .rail-step {
+      width: 100%;
+    }
+    .rail-step__title {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      font-weight: 500;
+      color: var(--ink-muted);
+      transition: color 200ms ease;
+    }
+    .rail-step[aria-current='step'] .rail-step__title {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .rail-step:hover .rail-step__title {
+      color: var(--ink);
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Motion inside the phone: the stage's active screen, and list       */
+  /* screens story.ts is watching ([data-watch]). Never with reduced    */
+  /* motion.                                                            */
+  /* ---------------------------------------------------------------- */
+
+  .story .reply-slot {
+    display: grid;
+  }
+  .story .reply-slot > * {
+    grid-area: 1 / 1;
+  }
+  .story .dots {
+    display: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .journey[data-ready] .shot {
+    html.js .story-track .screen .a,
+    html.js .story-list .screen[data-watch] .a {
       transition:
-        opacity 220ms ease,
-        visibility 0s linear 220ms;
+        opacity 360ms ease,
+        transform 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition-delay: calc(var(--i, 0) * 150ms + 160ms);
     }
-    .journey[data-ready] .shot[data-visible] {
-      transition:
-        opacity 220ms ease,
-        visibility 0s;
+    html.js .story-track .screen:not([data-active]) .a,
+    html.js .story-list .screen[data-watch]:not([data-active]) .a {
+      opacity: 0;
+      transform: translateY(0.625rem);
+      transition: none;
+    }
+
+    html.js .story-track .screen .named .lead,
+    html.js .story-list .screen[data-watch] .named .lead {
+      transition: background-size 520ms ease calc(var(--i, 0) * 150ms + 520ms);
+    }
+    html.js .story-track .screen:not([data-active]) .named .lead,
+    html.js .story-list .screen[data-watch]:not([data-active]) .named .lead {
+      --draw: 0%;
+      transition: none;
+    }
+
+    html.js .story .screen[data-active] .mode-option__tick {
+      animation: story-pop 420ms cubic-bezier(0.3, 1.6, 0.5, 1) 650ms both;
+    }
+    html.js .story .screen[data-active] .composer__caret {
+      animation: story-blink 1s steps(1) infinite;
+    }
+
+    /* Step 6: it thinks, then replies. The dots and the reply share a spot. */
+    html.js .story .screen[data-active] .dots {
+      display: inline-flex;
+      animation: story-dots 1.25s ease 0.4s both;
+    }
+    html.js .story .screen[data-active] .dots span {
+      animation: story-bounce 900ms ease-in-out infinite;
+    }
+    html.js .story .screen[data-active] .dots span:nth-child(2) {
+      animation-delay: 150ms;
+    }
+    html.js .story .screen[data-active] .dots span:nth-child(3) {
+      animation-delay: 300ms;
     }
   }
 
-  /* Phone layout: one step open at a time. */
-  @media (max-width: 63.999rem) {
-    .journey[data-enhanced] .step:not([data-state='active']) .step__panel {
-      display: none;
-    }
-    .journey[data-enhanced] .step:not([data-state='active']) .step__title {
-      color: var(--ink-muted);
+  @keyframes story-pop {
+    from {
+      transform: scale(0);
     }
   }
-  @media (max-width: 63.999rem) and (prefers-reduced-motion: no-preference) {
-    .journey[data-ready] .step[data-state='active'] .step__panel {
-      transition: opacity 220ms ease;
-    }
-    @starting-style {
-      .journey[data-ready] .step[data-state='active'] .step__panel {
-        opacity: 0;
-      }
+  @keyframes story-blink {
+    50% {
+      opacity: 0;
     }
   }
-
-  /* ---------------------------------------------------------------- */
-  /* Desktop: steps on the left, one sticky phone on the right.        */
-  /* ---------------------------------------------------------------- */
-
-  @media (min-width: 64rem) {
-    .journey[data-enhanced] .journey__body {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 22rem;
-      column-gap: clamp(3rem, 6vw, 6rem);
-      align-items: start;
+  @keyframes story-dots {
+    0% {
+      opacity: 0;
     }
-
-    .journey[data-enhanced] .journey__stage {
-      position: sticky;
-      top: calc(var(--header-h) + 1.5rem);
-      display: grid;
-      justify-items: center;
+    20%,
+    80% {
+      opacity: 1;
     }
-
-    .journey[data-enhanced] .step {
-      padding-bottom: 1.5rem;
-      cursor: pointer;
+    100% {
+      opacity: 0;
+      visibility: hidden;
     }
-    .journey[data-enhanced] .step__panel {
-      padding-top: 0.375rem;
+  }
+  @keyframes story-bounce {
+    0%,
+    100% {
+      transform: none;
+      opacity: 0.45;
     }
-    .journey[data-enhanced] .journey__slot {
-      display: none;
-    }
-    .journey[data-enhanced] .step:not([data-state='active']) .step__body {
-      color: var(--ink-muted);
-    }
-    .journey[data-enhanced] .journey__nav {
-      max-width: 36rem;
-      margin-left: 3.25rem;
+    40% {
+      transform: translateY(-3px);
+      opacity: 1;
     }
   }
 </style>

@@ -1,35 +1,32 @@
 ---
 /**
- * A static mock of the hand-back card, filled with the idea-mode example
- * from docs/copy.md (hostel food delivery). The one "card" on the page:
- * it should look like something you'd screenshot and send to a friend.
+ * A static mock of the hand-back card, filled with the chosen category's
+ * example (see HAND_BACK in src/data/categories.ts). The one "card" on the
+ * page: it should look like something you'd screenshot and send a friend.
  */
 import UserLine from './UserLine.astro';
 import Receipt from './Receipt.astro';
+import { CATEGORY, HAND_BACK, type Category } from '../data/categories';
 
-const COUNTERPOINTS = [
-  { source: 'Hostel snack app, 2017–2019', point: 'Couldn’t cover delivery costs on small orders.' },
-  { source: 'Campus grocery app, 2018–2020', point: 'Saw orders collapse every vacation.' },
-  { source: 'Meal-plan app, 2016–2018', point: 'Lost to the hostel’s own mess contract.' },
-];
+interface Props {
+  category: Category;
+}
 
-const OPEN_QUESTIONS = [
-  'Does demand survive 3 months of holidays a year?',
-  'Would parents prepay a semester?',
-  'Why won’t hostels just call the local dhaba?',
-];
+const { category } = Astro.props;
+const card = HAND_BACK[category];
+const titleId = `hbc-title-${category}`;
 ---
 
-<article class="hbc" aria-labelledby="hbc-title">
+<article class="hbc" aria-labelledby={titleId}>
   <header class="hbc__head">
-    <p id="hbc-title" class="hbc__title">Hand-back card</p>
-    <p class="hbc__mode">Challenge my idea</p>
+    <p id={titleId} class="hbc__title">Hand-back card</p>
+    <p class="hbc__mode">{CATEGORY[category].mode}</p>
   </header>
 
   <div class="hbc__part">
     <h3 class="hbc__label">Your position</h3>
     <UserLine size="sm" speaker={false} class="hbc__position">
-      Food delivery for college hostels. The big apps did it, so there’s clearly demand.
+      {card.position}
     </UserLine>
   </div>
 
@@ -37,7 +34,7 @@ const OPEN_QUESTIONS = [
     <h3 class="hbc__label">Toughest counterpoints</h3>
     <ol class="hbc__counter" role="list">
       {
-        COUNTERPOINTS.map((c) => (
+        card.counterpoints.map((c) => (
           <li>
             <p class="hbc__point">{c.point}</p>
             <Receipt>{c.source}</Receipt>
@@ -45,24 +42,24 @@ const OPEN_QUESTIONS = [
         ))
       }
     </ol>
-    <p class="hbc__note">Illustrative examples for this demo</p>
+    <p class="hbc__note">{card.note}</p>
   </div>
 
   <div class="hbc__part">
     <h3 class="hbc__label">What’s genuinely strong</h3>
-    <p class="hbc__prose">Captive audience, dense delivery routes, cheap marketing through hostel groups.</p>
+    <p class="hbc__prose">{card.strong}</p>
   </div>
 
   <div class="hbc__part">
     <h3 class="hbc__label">Open questions only you can answer</h3>
     <ul class="hbc__questions" role="list">
-      {OPEN_QUESTIONS.map((q) => <li>{q}</li>)}
+      {card.questions.map((q) => <li>{q}</li>)}
     </ul>
   </div>
 
   <div class="hbc__part">
     <h3 class="hbc__label">Cheapest test this month</h3>
-    <p class="hbc__prose">Ask hostel parents if they’d prepay a semester of breakfasts.</p>
+    <p class="hbc__prose">{card.test}</p>
   </div>
 
   <footer class="hbc__foot">

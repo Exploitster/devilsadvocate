@@ -31,9 +31,9 @@ export const path = (p: string) => `${BASE}${p}`;
 export const SECTIONS = {
   hero: 'top',
   why: 'why',
-  modes: 'modes',
-  bring: 'what-you-can-bring',
+  whatItDoes: 'what-it-does',
   howItWorks: 'how-it-works',
+  trySample: 'try-a-sample',
   whatYouGet: 'what-you-get',
   pricing: 'pricing',
   refuse: 'what-we-wont-do',
@@ -46,7 +46,7 @@ export const sectionHref = (id: string) => path(`/#${id}`);
 
 export const NAV_LINKS = [
   { label: 'How it works', href: sectionHref(SECTIONS.howItWorks) },
-  { label: 'What you get', href: sectionHref(SECTIONS.whatYouGet) },
+  { label: 'Try a sample', href: sectionHref(SECTIONS.trySample) },
   { label: 'Pricing', href: sectionHref(SECTIONS.pricing) },
   { label: 'FAQ', href: sectionHref(SECTIONS.faq) },
 ];

@@ -40,6 +40,8 @@
   --indent: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
   --measure: 62ch;
   --header-h: 3.5rem;
+  /* The Philosophy / Startup tabs, sticky under the header. */
+  --tabs-h: 3.5rem;
 
   --radius-control: 6px;
   --radius-chip: 2px;
@@ -120,7 +122,7 @@
     font-optical-sizing: auto;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scroll-padding-top: calc(var(--header-h) + 1rem);
+    scroll-padding-top: calc(var(--header-h) + var(--tabs-h) + 1rem);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -388,3 +390,31 @@
     text-underline-offset: 0.18em;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Categories: content written for one tab ([data-cat]) shows only    */
+/* while that tab is chosen. With JavaScript, <html data-category>    */
+/* decides (categories.ts measures the page before it changes);       */
+/* without it, the checked radio does.                                */
+/* ------------------------------------------------------------------ */
+
+html.js[data-category='philosophy'] [data-cat='startup'],
+html.js[data-category='startup'] [data-cat='philosophy'],
+html:not(.js):has(#cat-philosophy:checked) [data-cat='startup'],
+html:not(.js):has(#cat-startup:checked) [data-cat='philosophy'] {
+  display: none !important;
+}
+
+/* A short fade for content that appears because of a switch. Opacity
+   only: a transform here would unstick the story's sticky stage. */
+@media (prefers-reduced-motion: no-preference) {
+  html.cats-ready [data-cat] {
+    animation: cat-in 360ms ease-out backwards;
+  }
+}
+@keyframes cat-in {
+  from {
+    opacity: 0;
+  }
+}
+

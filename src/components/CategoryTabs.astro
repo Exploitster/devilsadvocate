@@ -1,0 +1,162 @@
+---
+/**
+ * The two tabs under the hero. They're a real radio group, so they work
+ * with the keyboard (arrow keys) and without JavaScript: global.css hides
+ * the other category's content with :has(). categories.ts adds the rest:
+ * the choice in the URL (?for=philosophy), a fade, and keeping your place
+ * on the page when you switch.
+ */
+import { CATEGORIES, CATEGORY, DEFAULT_CATEGORY } from '../data/categories';
+---
+
+<div class="cats-lead container-page">
+  <p id="cats-label" class="cats-lead__text">What are you bringing? The rest of the page changes to match.</p>
+</div>
+
+<div class="cats" data-cats>
+  <div class="container-page">
+    <div class="cats__set" role="radiogroup" aria-labelledby="cats-label">
+      {
+        CATEGORIES.map((cat) => (
+          <label class="cats__tab">
+            <input
+              type="radio"
+              name="category"
+              id={`cat-${cat}`}
+              value={cat}
+              checked={cat === DEFAULT_CATEGORY}
+              aria-describedby={`cat-${cat}-hint`}
+            />
+            <span class="cats__label">{CATEGORY[cat].label}</span>
+            <span class="cats__hint" id={`cat-${cat}-hint`}>
+              {CATEGORY[cat].hint}
+            </span>
+          </label>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  // Before first paint: open the category named in the link (?for=), so a
+  // shared link never flashes the other one first.
+  // With JavaScript on, data-category (not the radios) decides what shows,
+  // so categories.ts can measure the page before it changes. Until that
+  // module takes over, a change still switches the page.
+  (function () {
+    var root = document.documentElement;
+    var want = new URLSearchParams(location.search).get('for');
+    var input = want && document.getElementById('cat-' + want);
+    if (input && input.name === 'category') input.checked = true;
+    var chosen = document.querySelector('input[name="category"]:checked');
+    if (chosen) root.setAttribute('data-category', chosen.value);
+    document.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t && t.name === 'category' && !root.hasAttribute('data-cats-live')) root.setAttribute('data-category', t.value);
+    });
+  })();
+</script>
+
+<script>
+  import { initCategories } from '../scripts/categories';
+  initCategories();
+</script>
+
+<style>
+  .cats-lead {
+    margin-top: calc(var(--section-gap) * -0.25);
+  }
+  .cats-lead__text {
+    max-width: 40ch;
+    font-weight: 500;
+    color: var(--ink-muted);
+  }
+
+  /* Sticky under the header, so you can switch from anywhere below. */
+  .cats {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 30;
+    margin-top: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  .cats__set {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    height: var(--tabs-h);
+    padding-block: 0.375rem;
+  }
+  @media (min-width: 48rem) {
+    .cats__set {
+      max-width: 40rem;
+    }
+  }
+
+  .cats__tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 0 0.75rem;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease;
+  }
+  .cats__tab input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    /* The page keeps room at the top for the header and these tabs
+       (scroll-padding). Without this, focusing a tab while it's stuck
+       there counts as "hidden under the bar" and scrolls the page. */
+    scroll-margin-top: calc(-1 * (var(--header-h) + var(--tabs-h) + 1rem));
+  }
+  .cats__tab:has(input:checked) {
+    border-bottom-color: var(--ink);
+    color: var(--ink);
+  }
+  .cats__tab:not(:has(input:checked)) {
+    color: var(--ink-muted);
+  }
+  .cats__tab:not(:has(input:checked)):hover {
+    color: var(--ink);
+  }
+  .cats__tab:has(input:focus-visible) {
+    outline: 3px solid var(--ink);
+    outline-offset: -3px;
+    border-radius: var(--radius-control);
+  }
+
+  .cats__label {
+    font-size: var(--step-0);
+  }
+
+  /* The hint names what each tab covers; there's room for it from tablet. */
+  .cats__hint {
+    display: none;
+    font-size: 0.9375rem;
+    font-weight: 450;
+  }
+  @media (min-width: 48rem) {
+    .cats__tab {
+      justify-content: flex-start;
+    }
+    .cats__hint {
+      display: inline;
+      color: var(--ink-muted);
+    }
+  }
+</style>
