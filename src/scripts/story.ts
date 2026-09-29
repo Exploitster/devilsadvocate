@@ -26,10 +26,11 @@ interface Story {
   current: number;
 }
 
-// Keep in step with the media query in HowItWorks.astro.
+// Keep in step with the media query in HowItWorks.astro: the stage needs
+// ~600px (phones) or ~540px (desktop) under the header and capsule band.
 const STAGE =
-  '(prefers-reduced-motion: no-preference) and (min-height: 44.625rem), ' +
-  '(prefers-reduced-motion: no-preference) and (min-width: 64rem) and (min-height: 40.875rem)';
+  '(prefers-reduced-motion: no-preference) and (min-height: 45rem), ' +
+  '(prefers-reduced-motion: no-preference) and (min-width: 64rem) and (min-height: 41.25rem)';
 const TYPE_MS = 26;
 
 export function initStory(): void {
@@ -38,9 +39,14 @@ export function initStory(): void {
 
   const stage = matchMedia(STAGE);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const header = document.querySelector<HTMLElement>('.site-header');
-  const tabs = document.querySelector<HTMLElement>('[data-cats]');
-  const pinTop = () => (header?.offsetHeight ?? 0) + (tabs?.offsetHeight ?? 0);
+  // Where the stage sticks: read from its CSS (header + capsule band), so
+  // the script can't drift from the styles. Re-read on resize.
+  let pinTopPx = 0;
+  const readPinTop = () => {
+    const pin = document.querySelector<HTMLElement>('[data-pin]');
+    pinTopPx = pin ? parseFloat(getComputedStyle(pin).top) || 0 : 0;
+  };
+  const pinTop = () => pinTopPx;
 
   const stories: Story[] = roots.map((root) => ({
     root,
@@ -149,6 +155,7 @@ export function initStory(): void {
       for (const entry of entries) {
         const s = stories.find((x) => x.track === entry.target)!;
         if (entry.isIntersecting) {
+          if (!pinTopPx) readPinTop();
           near.add(s);
           fit(s);
         } else {
@@ -215,7 +222,10 @@ export function initStory(): void {
   let resizeTimer = 0;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => near.forEach(fit), 150);
+    resizeTimer = window.setTimeout(() => {
+      readPinTop();
+      near.forEach(fit);
+    }, 150);
   });
   window.addEventListener('scroll', onScroll, { passive: true });
   // The other category's story just appeared: fit its phone, find its step.

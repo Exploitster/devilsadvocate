@@ -1,112 +1,58 @@
 @import 'tailwindcss';
+@import './tokens.css';
 
 /* Dark mode follows the system setting only; there is no toggle. */
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
-/* ------------------------------------------------------------------ */
-/* Tokens                                                              */
-/* ------------------------------------------------------------------ */
-
-:root {
-  color-scheme: light dark;
-
-  /* Color: the brief's palette. Yellow is reserved for cited evidence. */
-  --paper: #f1f3f8;
-  --surface: #ffffff;
-  --ink: #1a1f36;
-  --ink-muted: #5a6078;
-  --devil: #b3124e;
-  --devil-hover: #960e41;
-  --on-devil: #ffffff;
-  --you: #13766a;
-  --receipt: #f5d547;
-  --receipt-bg: var(--receipt);
-  --rule: rgb(26 31 54 / 0.14);
-  --frame: #1a1f36;
-
-  /* Type scale: 17px x 1.25 at 360px, easing to 18px x 1.333 at 1280px. */
-  --step--1: 0.875rem;
-  --step-0: clamp(1.0625rem, 1.038rem + 0.1087vw, 1.125rem);
-  --step-1: clamp(1.3281rem, 1.261rem + 0.2983vw, 1.4996rem);
-  --step-2: clamp(1.6602rem, 1.5276rem + 0.5893vw, 1.999rem);
-  --step-3: clamp(2.0752rem, 1.8445rem + 1.0252vw, 2.6647rem);
-  --step-4: clamp(2.594rem, 2.2191rem + 1.6661vw, 3.552rem);
-  /* The h1 runs from step 4 on phones to step 5 on desktop. */
-  --step-display: clamp(2.5938rem, 1.7558rem + 3.7239vw, 4.7348rem);
-
-  /* Space */
-  --gutter: clamp(1.25rem, 0.5652rem + 3.0435vw, 3rem);
-  --section-gap: clamp(6rem, 4.4348rem + 6.9565vw, 10rem);
-  --indent: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
-  --measure: 62ch;
-  --header-h: 3.5rem;
-  /* The Philosophy / Startup tabs, sticky under the header. */
-  --tabs-h: 3.5rem;
-
-  --radius-control: 6px;
-  --radius-chip: 2px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #141830;
-    --surface: #1d2240;
-    --ink: #e8eaf3;
-    --ink-muted: #a3a8c3;
-    --devil: #ff5c8a;
-    --devil-hover: #ff7fa3;
-    /* White on #FF5C8A is 2.9:1, so buttons carry dark text in dark mode. */
-    --on-devil: #141830;
-    --you: #3cc9b5;
-    --receipt: #e8c63a;
-    --receipt-bg: rgb(232 198 58 / 0.35);
-    --rule: rgb(232 234 243 / 0.16);
-    --frame: #2a3060;
-  }
-}
-
-/* Map the tokens into Tailwind. The default palette is cleared so only
-   these colors exist as utilities. */
+/* Map the semantic tokens (tokens.css) into Tailwind. The default palette
+   is cleared so only these exist as utilities. */
 @theme inline {
   --color-*: initial;
-  --color-paper: var(--paper);
+  --color-page: var(--page);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-devil: var(--devil);
-  --color-devil-hover: var(--devil-hover);
-  --color-on-devil: var(--on-devil);
-  --color-you: var(--you);
-  --color-receipt: var(--receipt);
-  --color-receipt-bg: var(--receipt-bg);
-  --color-rule: var(--rule);
+  --color-ink-2: var(--ink-2);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-tint: var(--accent-tint);
+  --color-on-accent: var(--on-accent);
+  --color-evidence: var(--evidence);
   --color-frame: var(--frame);
+  /* Legacy names, removed once nothing uses them. */
+  --color-paper: var(--page);
+  --color-ink-muted: var(--ink-2);
+  --color-rule: var(--line);
 
-  --font-product: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
-  --font-user: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-stack);
+  --font-product: var(--font-stack);
+  --font-user: var(--font-stack);
 
   --text-step-n1: var(--step--1);
-  --text-step-n1--line-height: 1.45;
+  --text-step-n1--line-height: 1.43;
   --text-step-0: var(--step-0);
-  --text-step-0--line-height: 1.55;
+  --text-step-0--line-height: 1.47;
   --text-step-1: var(--step-1);
-  --text-step-1--line-height: 1.4;
+  --text-step-1--line-height: 1.33;
   --text-step-2: var(--step-2);
-  --text-step-2--line-height: 1.25;
+  --text-step-2--line-height: 1.2;
   --text-step-3: var(--step-3);
-  --text-step-3--line-height: 1.12;
+  --text-step-3--line-height: 1.07;
   --text-step-4: var(--step-4);
-  --text-step-4--line-height: 1.06;
+  --text-step-4--line-height: 1.07;
   --text-display: var(--step-display);
-  --text-display--line-height: 1.04;
+  --text-display--line-height: 1.05;
 
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-gap);
   --spacing-indent: var(--indent);
   --max-width-measure: var(--measure);
 
-  --radius-control: var(--radius-control);
-  --radius-chip: var(--radius-chip);
+  --radius-control: var(--r-control);
+  --radius-chip: var(--r-chip);
+  --radius-tile: var(--r-tile);
+  --radius-pill: var(--r-pill);
 }
 
 /* ------------------------------------------------------------------ */
@@ -115,13 +61,16 @@
 
 @layer base {
   html {
-    background: var(--paper);
+    background: var(--page);
     color: var(--ink);
-    font-family: var(--font-user);
+    font-family: var(--font-stack);
     font-size: 100%;
-    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Room for the header and the capsule's band, so whatever is scrolled
+       into view (anchors, focus) is never under them. */
     scroll-padding-top: calc(var(--header-h) + var(--tabs-h) + 1rem);
   }
 
@@ -134,36 +83,39 @@
   body {
     min-height: 100dvh;
     font-size: var(--step-0);
-    line-height: 1.55;
-    background: var(--paper);
+    line-height: 1.47;
+    letter-spacing: -0.012em;
+    background: var(--page);
   }
 
-  /* Headings are the product's lines, so they are set in Fraunces. */
+  /* Slides (category switch) move sideways; clip, never hidden, which
+     would break the sticky stage in How it works. */
+  main {
+    overflow-x: clip;
+  }
+
   h1,
   h2,
   h3 {
-    font-family: var(--font-product);
-    font-optical-sizing: auto;
+    font-family: var(--font-stack);
+    font-weight: 600;
     text-wrap: balance;
     color: var(--ink);
   }
   h1 {
     font-size: var(--step-display);
-    line-height: 1.04;
-    font-weight: 560;
+    line-height: 1.05;
     letter-spacing: -0.02em;
   }
   h2 {
     font-size: var(--step-3);
-    line-height: 1.12;
-    font-weight: 540;
+    line-height: 1.07;
     letter-spacing: -0.015em;
   }
   h3 {
     font-size: var(--step-1);
-    line-height: 1.3;
-    font-weight: 540;
-    letter-spacing: -0.005em;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
   p,
@@ -179,88 +131,59 @@
   }
 
   ::selection {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--accent-soft);
+    color: var(--ink);
   }
 
-  /* One focus style everywhere: never yellow, so yellow stays evidence. */
+  /* One focus ring everywhere, in the accent. Never yellow: yellow is for
+     evidence only. */
   :focus-visible {
-    outline: 3px solid var(--ink);
-    outline-offset: 3px;
-    border-radius: 2px;
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
   }
 }
 
 /* ------------------------------------------------------------------ */
-/* Components that are shared by many templates                        */
+/* Shared pieces                                                       */
 /* ------------------------------------------------------------------ */
 
 @layer components {
   .container-page {
     width: 100%;
-    max-width: 72rem;
+    max-width: calc(var(--container) + 2 * var(--gutter));
     margin-inline: auto;
     padding-inline: var(--gutter);
-  }
-
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 3rem;
-    padding: 0 1.25rem;
-    border-radius: var(--radius-control);
-    background: var(--devil);
-    color: var(--on-devil);
-    font-family: var(--font-user);
-    font-size: var(--step-0);
-    font-weight: 600;
-    line-height: 1.2;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background-color 120ms ease;
-  }
-  .btn-primary:hover {
-    background: var(--devil-hover);
-  }
-
-  /* The quieter partner of .btn-primary: same shape, ink outline. */
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 3rem;
-    padding: 0 1.25rem;
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius-control);
-    background: transparent;
-    color: var(--ink);
-    font-family: var(--font-user);
-    font-size: var(--step-0);
-    font-weight: 600;
-    line-height: 1.2;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background-color 120ms ease;
-  }
-  .btn-secondary:hover {
-    background: color-mix(in srgb, var(--ink) 7%, transparent);
-  }
-
-  .link-quiet {
-    font-weight: 500;
-    text-decoration-line: underline;
-    text-decoration-color: var(--rule);
-    text-decoration-thickness: 2px;
-  }
-  .link-quiet:hover {
-    text-decoration-color: currentColor;
   }
 
   /* Section rhythm: half the gap above and below, so neighbours add up to
      one full gap. */
   .section {
     padding-block: calc(var(--section-gap) / 2);
+  }
+
+  /* A full-width tinted band in the current accent, drawn outside the
+     section's box (border-image outset), so no wrapper is needed and
+     nothing scrolls sideways. It changes colour with the tab. */
+  .band {
+    border-image: conic-gradient(var(--accent-tint) 0 0) fill 0 / / 0 100vmax;
+  }
+
+  /* Centered section heading with an optional lead, the default. */
+  .section-head {
+    max-width: 46rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .lead {
+    margin-top: 1rem;
+    font-size: var(--step-1);
+    line-height: 1.33;
+    letter-spacing: -0.01em;
+    color: var(--ink-2);
+  }
+  .section-head .lead {
+    margin-inline: auto;
+    max-width: 36rem;
   }
 
   /* Heading on the left, content on the right, from desktop up. */
@@ -277,6 +200,69 @@
       column-gap: clamp(3rem, 6vw, 6rem);
       align-items: start;
     }
+  }
+
+  /* Flat tile: white on the page, like a card without the shadow. */
+  .tile {
+    border-radius: var(--r-tile);
+    background: var(--surface);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    min-height: 2.75rem;
+    padding: 0 1.375rem;
+    border-radius: var(--r-pill);
+    font-family: var(--font-stack);
+    font-size: var(--step-0);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+  .btn-secondary {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--accent-soft) 80%, var(--ink) 8%);
+  }
+
+  /* Text links: accent colour with a soft underline that firms up on hover. */
+  .link-quiet {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    text-decoration-thickness: 1.5px;
+    transition:
+      color 200ms ease,
+      text-decoration-color 200ms ease;
+  }
+  .link-quiet:hover {
+    text-decoration-color: currentColor;
+  }
+  /* "See how it works ›": the chevron is decoration, hidden from screen
+     readers. Text links only, never buttons. */
+  .link-more::after {
+    content: '\00a0›' / '';
   }
 
   .sr-only-text {
@@ -297,88 +283,80 @@
 /* ------------------------------------------------------------------ */
 
 @layer components {
+  /* On the page, a line is plain text; screen readers still hear whose it
+     is ("You:" / "Devils Advocate:"). */
   .line {
-    --line-indent: var(--indent);
-    display: grid;
-    grid-template-columns: 1.15em minmax(0, 1fr);
-    align-items: start;
+    display: block;
     max-width: var(--measure);
   }
-
   .line__mark {
-    font-size: 1.7em;
-    line-height: 1;
-    font-weight: 700;
-    /* Sit the mark on the first line's cap height rather than its box. */
-    margin-top: -0.02em;
-    user-select: none;
+    display: none;
   }
-
   .line__body > :where(p, ul, ol) + :where(p, ul, ol) {
     margin-top: 0.5em;
   }
-
-  /* The user: Bricolage, flush left, teal speech mark. */
-  .line--user {
-    font-family: var(--font-user);
-    font-weight: 450;
-    line-height: 1.45;
-  }
-  .line--user .line__mark {
-    color: var(--you);
-    font-family: var(--font-user);
-  }
-
-  /* The product: Fraunces, indented, raspberry speech mark. Fraunces has a
-     smaller x-height than Bricolage, so it runs ~6% larger, and it gets a
-     slightly more open line-height and tracking. */
-  .line--product {
-    margin-inline-start: var(--line-indent);
-    font-family: var(--font-product);
-    font-optical-sizing: auto;
-    font-weight: 400;
-    line-height: 1.55;
-    letter-spacing: 0.005em;
-  }
-  .line--product .line__mark {
-    color: var(--devil);
-    font-family: var(--font-product);
-  }
-
   .line--sm {
-    --line-indent: 0.875rem;
-  }
-  .line--user.line--sm {
     font-size: 0.9375rem;
+    line-height: 1.4;
   }
-  .line--product.line--sm {
-    font-size: 1rem;
-  }
-  .line--user.line--md {
+  .line--md {
     font-size: var(--step-0);
   }
-  .line--product.line--md {
-    font-size: calc(var(--step-0) * 1.06);
-  }
-  .line--user.line--lg {
+  .line--lg {
     font-size: var(--step-1);
-  }
-  .line--product.line--lg {
-    font-size: calc(var(--step-1) * 1.06);
+    line-height: 1.33;
   }
 
-  /* Receipt: the only place the highlighter yellow appears. */
-  /* inline-block keeps a long citation together as one chip instead of
-     breaking it across lines mid-sentence. */
+  /* In a conversation (.bubbles), lines become message bubbles: yours on
+     the right in the accent's soft tint, ours on the left in grey. */
+  .bubbles .line {
+    display: flex;
+    max-width: none;
+  }
+  .bubbles .line__body {
+    max-width: min(85%, 36rem);
+    padding: 0.55em 0.85em;
+    border-radius: 1.15em;
+    overflow-wrap: anywhere;
+  }
+  .bubbles .line--user {
+    justify-content: flex-end;
+  }
+  .bubbles .line--user .line__body {
+    border-bottom-right-radius: 0.35em;
+    background: var(--bubble-user-bg);
+    color: var(--ink);
+  }
+  .bubbles .line--product {
+    justify-content: flex-start;
+  }
+  .bubbles .line--product .line__body {
+    border-bottom-left-radius: 0.35em;
+    background: var(--bubble-product-bg);
+    color: var(--ink);
+  }
+  /* A card inside a conversation (the hand-back card) stays plain. */
+  .bubbles .plain .line {
+    display: block;
+  }
+  .bubbles .plain .line__body {
+    max-width: none;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  /* Receipt: the only place the butter yellow appears. inline-block keeps
+     a citation together as one chip. */
   .receipt {
     display: inline-block;
     max-width: 100%;
-    padding: 0.15em 0.45em;
-    border-radius: var(--radius-chip);
-    background: var(--receipt-bg);
+    padding: 0.15em 0.5em;
+    border-radius: var(--r-chip);
+    background: var(--evidence);
     color: var(--ink);
-    font-family: var(--font-user);
-    font-size: var(--step--1);
+    font-family: var(--font-stack);
+    font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: 0;
@@ -405,16 +383,35 @@ html:not(.js):has(#cat-startup:checked) [data-cat='philosophy'] {
   display: none !important;
 }
 
-/* A short fade for content that appears because of a switch. Opacity
-   only: a transform here would unstick the story's sticky stage. */
+/* A switch is visible: content for the new tab slides in from the side of
+   the tab you picked (categories.ts sets data-switch for ~0.5s). Anything
+   holding a sticky child (the story) only fades: a transform on it would
+   unstick the stage. */
 @media (prefers-reduced-motion: no-preference) {
-  html.cats-ready [data-cat] {
-    animation: cat-in 360ms ease-out backwards;
+  html[data-switch] [data-cat] {
+    animation: cat-fade 360ms var(--ease) backwards;
+  }
+  html[data-switch='to-left'] [data-cat]:not([data-story], [data-still]) {
+    animation-name: cat-from-left;
+  }
+  html[data-switch='to-right'] [data-cat]:not([data-story], [data-still]) {
+    animation-name: cat-from-right;
   }
 }
-@keyframes cat-in {
+@keyframes cat-fade {
   from {
     opacity: 0;
   }
 }
-
+@keyframes cat-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+}
+@keyframes cat-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+}

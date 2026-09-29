@@ -1,0 +1,216 @@
+/*
+ * Design tokens: the single source for colour, type, shape, depth and
+ * motion, for this site and for the product app built later. See
+ * docs/design-language.md for how to use them.
+ *
+ * Three tiers:
+ *   1. primitives   raw values (--lavender-700, --gray-…). Only this file
+ *                   uses them.
+ *   2. semantic     roles (--page, --ink, --accent, …). Components use
+ *                   these.
+ *   3. component    a few named parts (--bubble-user-bg, --capsule-…).
+ *
+ * Every text/background pairing below was checked for WCAG AA (ratios in
+ * the redesign plan, docs/plans/2026-09-29-001-…).
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- 1. Primitives ------------------------------------------------ */
+  --gray-page: #f5f5f7;
+  --gray-surface: #ffffff;
+  --gray-surface-2: #fbfbfd;
+  --gray-ink: #1d1d1f;
+  --gray-ink-2: #636368;
+  --gray-control: #8a8a8f;
+  --gray-bubble: #e9e9eb;
+
+  --lavender-tint-l: #f1eeff;
+  --lavender-soft-l: #e6e1ff;
+  --lavender-deep-l: #5b4bd0;
+  --lavender-hover-l: #4b3cb8;
+  --lavender-tint-d: #2f2d39;
+  --lavender-soft-d: #413f54;
+  --lavender-deep-d: #b8adff;
+  --lavender-hover-d: #cbc3ff;
+
+  --mint-tint-l: #eaf7f0;
+  --mint-soft-l: #d3f0e2;
+  --mint-deep-l: #1b7050;
+  --mint-hover-l: #155c41;
+  --mint-tint-d: #26322e;
+  --mint-soft-d: #2f493f;
+  --mint-deep-d: #6dd6a6;
+  --mint-hover-d: #8fe2bc;
+
+  --butter-l: #fff0b3;
+  --butter-d: #49411a;
+
+  /* Per-hue roles that flip with the colour scheme, so each category
+     mapping below is written once. */
+  --lavender-tint: var(--lavender-tint-l);
+  --lavender-soft: var(--lavender-soft-l);
+  --lavender-deep: var(--lavender-deep-l);
+  --lavender-hover: var(--lavender-hover-l);
+  --mint-tint: var(--mint-tint-l);
+  --mint-soft: var(--mint-soft-l);
+  --mint-deep: var(--mint-deep-l);
+  --mint-hover: var(--mint-hover-l);
+
+  /* ---- 2. Semantic ---------------------------------------------------- */
+  --page: var(--gray-page);
+  --surface: var(--gray-surface);
+  --surface-2: var(--gray-surface-2);
+  --ink: var(--gray-ink);
+  --ink-2: var(--gray-ink-2);
+  --line: rgb(0 0 0 / 0.08);
+  --control: var(--gray-control);
+  --on-accent: #ffffff;
+  --evidence: var(--butter-l);
+  --frame: #1d1d1f;
+
+  /* Accent: mint unless the page is showing Philosophy (see below). */
+  --accent: var(--mint-deep);
+  --accent-hover: var(--mint-hover);
+  --accent-soft: var(--mint-soft);
+  --accent-tint: var(--mint-tint);
+
+  /* ---- 3. Component --------------------------------------------------- */
+  --bubble-user-bg: var(--accent-soft);
+  --bubble-product-bg: var(--gray-bubble);
+  --glass: rgb(255 255 255 / 0.8);
+  --glass-blur: saturate(180%) blur(16px);
+  --capsule-thumb: var(--accent-soft);
+
+  /* ---- Type ----------------------------------------------------------- */
+  /* Real SF Pro on Apple devices (it can't be embedded elsewhere); Inter,
+     then a metric-matched Arial while Inter loads, everywhere else. */
+  --font-stack: -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Inter Fallback', 'Segoe UI', Roboto, Arial,
+    sans-serif;
+
+  /* Fluid between 360px and 1280px wide. */
+  --step--1: 0.875rem; /* 14 */
+  --step-0: 1.0625rem; /* 17 body */
+  --step-1: clamp(1.1875rem, 1.0652rem + 0.5435vw, 1.5rem); /* lead 19→24 */
+  --step-2: clamp(1.5rem, 1.3043rem + 0.8696vw, 2rem); /* card titles 24→32 */
+  --step-3: clamp(2rem, 1.4131rem + 2.6087vw, 3.5rem); /* section titles 32→56 */
+  --step-4: clamp(2.25rem, 1.7609rem + 2.1739vw, 3.5rem); /* page titles 36→56 */
+  --step-display: clamp(2.5rem, 1.5217rem + 4.3478vw, 5rem); /* hero 40→80 */
+
+  /* ---- Space, shape, depth, motion -------------------------------------- */
+  --gutter: clamp(1.25rem, 0.5652rem + 3.0435vw, 3rem);
+  --section-gap: clamp(5rem, 3.2rem + 8vw, 10rem);
+  --measure: 42.5rem; /* 680px text column */
+  --container: 67.5rem; /* 1080px */
+  --header-h: 3.25rem; /* 52px */
+  /* The capsule's band: 52px control + breathing room. Also what
+     scroll-padding keeps clear, so a revealed capsule never covers focus. */
+  --tabs-h: 4.25rem;
+  --indent: 0;
+
+  --r-tile: 1.375rem; /* 22px on phones, 28px from tablet */
+  --r-card: 1.125rem;
+  --r-control: 0.75rem;
+  --r-chip: 0.4rem;
+  --r-pill: 999px;
+
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.1);
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 32px rgb(0 0 0 / 0.08);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* ---- Legacy names (kept only while components move over) ----------- */
+  --paper: var(--page);
+  --ink-muted: var(--ink-2);
+  --devil: var(--accent);
+  --devil-hover: var(--accent-hover);
+  --on-devil: var(--on-accent);
+  --you: var(--accent);
+  --receipt-bg: var(--evidence);
+  --rule: var(--line);
+  --radius-control: var(--r-control);
+  --radius-chip: var(--r-chip);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --r-tile: 1.75rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gray-page: #0e0e10;
+    --gray-surface: #1c1c1e;
+    --gray-surface-2: #2c2c2e;
+    --gray-ink: #f5f5f7;
+    --gray-ink-2: #b4b4b9;
+    --gray-control: #7c7c80;
+    --gray-bubble: #2c2c2e;
+
+    --lavender-tint: var(--lavender-tint-d);
+    --lavender-soft: var(--lavender-soft-d);
+    --lavender-deep: var(--lavender-deep-d);
+    --lavender-hover: var(--lavender-hover-d);
+    --mint-tint: var(--mint-tint-d);
+    --mint-soft: var(--mint-soft-d);
+    --mint-deep: var(--mint-deep-d);
+    --mint-hover: var(--mint-hover-d);
+
+    --line: rgb(255 255 255 / 0.12);
+    /* Light pastel buttons carry dark text in dark mode. */
+    --on-accent: #1d1d1f;
+    --evidence: var(--butter-d);
+    --frame: #3a3a3c;
+    --glass: rgb(28 28 30 / 0.8);
+    --shadow-float: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.45);
+    --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.35), 0 12px 32px rgb(0 0 0 / 0.4);
+  }
+}
+
+/* ---- Category accent -------------------------------------------------- */
+/* Philosophy is lavender, Startup is mint. With JavaScript, <html
+   data-category> decides; without it, the checked radio does. A
+   [data-cat] block keeps its own accent, so it stays right mid-animation. */
+html[data-category='philosophy'],
+html:not(.js):has(#cat-philosophy:checked),
+[data-cat='philosophy'] {
+  --accent: var(--lavender-deep);
+  --accent-hover: var(--lavender-hover);
+  --accent-soft: var(--lavender-soft);
+  --accent-tint: var(--lavender-tint);
+}
+html[data-category='startup'],
+[data-cat='startup'] {
+  --accent: var(--mint-deep);
+  --accent-hover: var(--mint-hover);
+  --accent-soft: var(--mint-soft);
+  --accent-tint: var(--mint-tint);
+}
+
+/* Glass needs the page behind it to show through. Without blur support,
+   or when people ask for less transparency or more contrast, it's solid. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass: var(--surface);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  :root {
+    --glass: var(--surface);
+    --glass-blur: none;
+  }
+}
+
+/* While Inter loads, Arial stands in at Inter's size, so nothing shifts
+   when it swaps (Capsize metrics). */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('ArialMT');
+  ascent-override: 90.4365%;
+  descent-override: 22.518%;
+  line-gap-override: 0%;
+  size-adjust: 107.1194%;
+}

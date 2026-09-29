@@ -1,10 +1,8 @@
 ---
-import '@fontsource-variable/fraunces/opsz.css';
-import '@fontsource-variable/bricolage-grotesque/opsz.css';
+// Inter is only the fallback for devices without Apple's system font, so
+// it isn't preloaded: Apple devices never download it.
+import '@fontsource-variable/inter/wght.css';
 import '../styles/global.css';
-// Preload the Latin files: the h1 is set in Fraunces and is the page's LCP.
-import frauncesLatin from '@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
-import bricolageLatin from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-opsz-normal.woff2?url';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { SITE, path } from '../config';
@@ -30,14 +28,12 @@ const ogImage = Astro.site ? new URL(path('/og.png'), Astro.site).href : path('/
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#F1F3F8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141830" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E0E10" media="(prefers-color-scheme: dark)" />
     {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" href={path('/favicon.ico')} sizes="32x32" />
     <link rel="icon" href={path('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={path('/apple-touch-icon.png')} />
-    <link rel="preload" href={frauncesLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={bricolageLatin} as="font" type="font/woff2" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -55,7 +51,18 @@ const ogImage = Astro.site ? new URL(path('/og.png'), Astro.site).href : path('/
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={SITE.ogImageAlt} />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script is:inline>
+      // Before first paint: mark JavaScript as on, and pick the category
+      // (Philosophy / Startup) from the link, so the accent colour and the
+      // content are right from the first frame. <html data-category> is the
+      // source of truth; categories.ts syncs the tabs from it.
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        var want = new URLSearchParams(location.search).get('for');
+        root.setAttribute('data-category', want === 'philosophy' || want === 'startup' ? want : 'startup');
+      })();
+    </script>
   </head>
   <body>
     <a

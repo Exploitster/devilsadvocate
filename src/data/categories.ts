@@ -10,18 +10,23 @@ export const CATEGORIES: Category[] = ['philosophy', 'startup'];
 /** Shown first: it continues the hero's example (a startup idea). */
 export const DEFAULT_CATEGORY: Category = 'startup';
 
-export const CATEGORY: Record<Category, { label: string; hint: string; mode: string; noun: string }> = {
+export const CATEGORY: Record<
+  Category,
+  { label: string; hint: string; mode: string; noun: string; card: string }
+> = {
   philosophy: {
     label: 'Philosophy',
     hint: 'Life decisions and beliefs',
     mode: 'Challenge my decision',
     noun: 'decision',
+    card: 'For big life calls and the beliefs you’ve never questioned.',
   },
   startup: {
     label: 'Startup',
     hint: 'Ideas and work proposals',
     mode: 'Challenge my idea',
     noun: 'idea',
+    card: 'For startup ideas, side projects, and work proposals.',
   },
 };
 
