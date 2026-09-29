@@ -23,7 +23,7 @@ export const CATEGORY_EVENT = 'da:category';
 
 const DEFAULT: Category = 'startup';
 const ORDER: Category[] = ['philosophy', 'startup']; // left to right in the capsule
-const LABEL: Record<Category, string> = { philosophy: 'Philosophy', startup: 'Startup' };
+const LABEL: Record<Category, string> = { philosophy: 'Philosophy', startup: 'Business validation' };
 const isCategory = (v: string | null | undefined): v is Category => v === 'philosophy' || v === 'startup';
 
 export const currentCategory = (): Category => {

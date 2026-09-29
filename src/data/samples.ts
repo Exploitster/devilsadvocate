@@ -9,8 +9,8 @@
 //     → push back (3 choices) → hand-back card
 //
 // Each choice carries the product's reply to it and the open question it
-// adds to the hand-back card; each push-back carries the reply, the
-// cheapest test, and what you walk out with. Every path through the tree
+// adds to the hand-back card; each push-back carries the reply and the
+// cheapest test. Every path through the tree
 // ends in a complete, consistent card.
 //
 // Startup samples use made-up, generic examples (labeled as
@@ -53,8 +53,6 @@ export interface PushBack {
   reply: string;
   /** The cheapest test this month, on the card. */
   test: string;
-  /** "Walking out with", under the card. */
-  after: string;
 }
 
 export interface Sample {
@@ -72,8 +70,6 @@ export interface Sample {
   note: string;
   pushbacks: PushBack[];
   card: { position: string; strong: string };
-  /** What the person walked in with. */
-  before: string;
 }
 
 const ILLUSTRATIVE = 'Illustrative examples for this demo';
@@ -166,26 +162,22 @@ export const SAMPLES: Record<Category, Sample[]> = {
           say: 'But we’ll be faster than the dhaba.',
           reply: 'Then prove it where speed wins: late nights, one hostel, two weeks. If people order again, you’ve got something.',
           test: 'Run late-night delivery in one hostel for two weeks. Count the repeat orders.',
-          after: 'Two weeks of late-night orders in one hostel, before writing any code.',
         },
         {
           say: 'The big apps did fine, so the demand is there.',
           reply: 'The demand is there, and so are the big apps. The startups on the other side had demand too. What they lacked was a reason to be picked over the default.',
           test: 'Ask 30 students which app they ordered from last week, and what would make them switch.',
-          after: 'A reason to be picked over the big apps, written down before the app is.',
         },
         {
           say: 'Vacations won’t matter if we grow fast.',
           reply: 'Growth doesn’t fill an empty campus. It just makes the empty months more expensive. Plan the quiet months first.',
           test: 'Price out three vacation months: riders, rent, and zero orders. See if you’re still standing.',
-          after: 'A plan for the three quiet months, before the busy ones.',
         },
       ],
       card: {
         position: 'Food delivery for college hostels.',
         strong: 'A dense, captive audience that’s cheap to reach.',
       },
-      before: 'An app for every hostel in the city.',
     },
     {
       id: 'bill-splitting',
@@ -272,26 +264,22 @@ export const SAMPLES: Record<Category, Sample[]> = {
           say: 'But ours will be much simpler.',
           reply: 'Simpler than a group chat is a high bar. Would a flat pay to stop using theirs? Ask ten flats before you build.',
           test: 'Track bills by hand for ten flats for a month. See how many would pay to keep it.',
-          after: 'One month doing it by hand for ten flats.',
         },
         {
           say: 'Everyone I know complains about this.',
           reply: 'Complaining is free. That’s the availability bias again: the fights stick in memory, the calm months don’t. Find out who’d pay.',
           test: 'Ask 20 flats to prepay one month. Count how many actually do.',
-          after: 'Twenty flats asked to pay, before six months of building.',
         },
         {
           say: 'We’ll make it fun, with reminders and badges.',
           reply: 'Fun helps people come back, but nobody wants a game about owing rent. Fix the chasing first; the badges can wait.',
           test: 'Send the reminders by hand for five flats for a month. See if the chasing stops.',
-          after: 'A month of hand-sent reminders, to see if chasing is the real pain.',
         },
       ],
       card: {
         position: 'A bill-splitting app for flatmates.',
         strong: 'A real, monthly pain with a built-in way to spread.',
       },
-      before: 'Six months building the app.',
     },
     {
       id: 'in-house-crm',
@@ -378,26 +366,22 @@ export const SAMPLES: Record<Category, Sample[]> = {
           say: 'But our needs are really specific.',
           reply: 'Then list the three things the current tool can’t do. If a setting or add-on covers them, the build solves a problem you don’t have.',
           test: 'List the three things the current tool can’t do, and check whether a setting or add-on does them.',
-          after: 'Pitch a one-week check of what the current tool can already do.',
         },
         {
           say: 'We’ll own our data.',
           reply: 'A good reason. Most paid tools let you export everything, though. If yours does, you own your data already.',
           test: 'Export everything from the current tool this week. See what, if anything, you can’t take with you.',
-          after: 'A tested export, instead of a rebuild to get the same data.',
         },
         {
           say: 'The subscription keeps going up.',
           reply: 'That’s a real cost. Compare it with developer time, not with zero. Then ask the vendor for a better plan.',
           test: 'Get a quote for a smaller plan, and price the build as developer hours plus a year of upkeep.',
-          after: 'A side-by-side cost, upkeep included, before anyone writes code.',
         },
       ],
       card: {
         position: 'Build our own customer database instead of paying for one.',
         strong: 'Ownership, no per-seat fees, and a perfect fit.',
       },
-      before: 'Pitch a six-month internal build.',
     },
   ],
   philosophy: [
@@ -484,26 +468,22 @@ export const SAMPLES: Record<Category, Sample[]> = {
           say: 'But I’ll regret it forever if I don’t try.',
           reply: 'Kierkegaard would say you’ll regret something either way. Could you keep one offer open while you test for 8 weeks? Regret has a cheaper version.',
           test: 'Keep one offer open while you test for 8 weeks.',
-          after: 'One offer kept open, an 8-week test, and a clear point to stop.',
         },
         {
           say: 'Everyone successful took a big risk.',
           reply: 'That’s survivorship: we hear from the risk-takers who made it, not the ones who didn’t. And Sartre would remind you that you’re choosing your life, not borrowing theirs.',
           test: 'Talk to two founders who tried and stopped. Ask what they’d do differently.',
-          after: 'The whole picture: the risk-takers who made it, and the ones who didn’t.',
         },
         {
           say: 'A job would kill my motivation.',
           reply: 'Maybe. But for Aristotle, courage is the brave thing done wisely, not just the brave thing. A deadline can protect motivation too.',
           test: 'Set a date and a number: if the startup hasn’t hit it by then, you take a job.',
-          after: 'A deadline and a number, instead of all or nothing.',
         },
       ],
       card: {
         position: 'Skip placements to build my startup full time.',
         strong: 'Courage, and a story that’s yours to write.',
       },
-      before: 'All in: no offer, no deadline.',
     },
     {
       id: 'move-cities',
@@ -587,26 +567,22 @@ export const SAMPLES: Record<Category, Sample[]> = {
           say: 'But I can’t stay forever just because they want me to.',
           reply: 'Fair. Even Confucius left room: if you go, let them know where to find you. Could you agree on visits before you leave, instead of after the guilt?',
           test: 'Ask your parents what exactly they’re afraid of, before you decide.',
-          after: 'Go with a plan they helped make: visits, calls, and a way back.',
         },
         {
           say: 'They’ll get used to it.',
           reply: 'Maybe. Confucius asks for something smaller: that they know where to find you. Getting used to it goes faster with a plan than with silence.',
           test: 'Agree on a call schedule and the date of the first visit before you accept.',
-          after: 'A move with calls planned and the first visit already on the calendar.',
         },
         {
           say: 'It’s my life, not theirs.',
           reply: 'Mill would agree it’s yours to live. Aristotle would add that a good life includes the people in it. Both can be true.',
           test: 'Ask your parents what exactly they’re afraid of, and answer each fear before you go.',
-          after: 'Their fears named out loud, and answered, before you leave.',
         },
       ],
       card: {
         position: 'Take the job in another city, against my parents’ wishes.',
         strong: 'A life you choose is more yours than one chosen for you.',
       },
-      before: 'Go, and deal with the guilt later.',
     },
     {
       id: 'money-meaning',
@@ -691,26 +667,22 @@ export const SAMPLES: Record<Category, Sample[]> = {
           say: 'But getting out of a job I hate is meaning, for me.',
           reply: 'Then you’ve found the real goal, and it has a number. Epicurus would say: work out what enough is, before the target moves.',
           test: 'Write down what enough is, in numbers, and what you’d do the day you hit it.',
-          after: 'A number that means enough, and a plan for the day you reach it.',
         },
         {
           say: 'Meaning doesn’t pay rent.',
           reply: 'True, and Aristotle agrees you need the means. He’d just say money is for something. Name the something, and you’ll know when to stop.',
           test: 'Write down what the money is for, and how much of it that takes.',
-          after: 'A reason for the money, and a number for enough.',
         },
         {
           say: 'Rich people seem pretty happy.',
           reply: 'Some do. Seneca was one of the richest men in Rome, and he still wrote that always wanting more is the real poverty.',
           test: 'For one month, note each purchase that still made you happier a week later.',
-          after: 'A month of evidence on what money actually buys you.',
         },
       ],
       card: {
         position: 'Money matters more than meaning.',
         strong: 'Security is a real good, and it comes before a lot of other goods.',
       },
-      before: 'More money, no finish line.',
     },
   ],
 };

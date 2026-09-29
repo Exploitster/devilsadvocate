@@ -279,22 +279,6 @@ const payload = (cat: (typeof CATEGORIES)[number], k: number) =>
                 </article>
               </div>
 
-              <div class="try__change part" data-part="change">
-                <h3 class="part__label">What changed</h3>
-                <div class="part__slot">
-                  <dl class="part__value change">
-                    <div class="change__row">
-                      <dt>Walked in with</dt>
-                      <dd>{s.before}</dd>
-                    </div>
-                    <div class="change__row change__row--after">
-                      <dt>Walking out with</dt>
-                      <dd data-after>{push.after}</dd>
-                    </div>
-                  </dl>
-                  <span class="part__wait" aria-hidden="true" />
-                </div>
-              </div>
             </div>
           );
         })}
@@ -723,48 +707,6 @@ const payload = (cat: (typeof CATEGORIES)[number], k: number) =>
   }
   .part__wait {
     display: none;
-  }
-
-  .change {
-    display: grid;
-    gap: 0.75rem;
-  }
-  .change__row {
-    display: grid;
-    gap: 0.125rem;
-  }
-  .change dt {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--ink-2);
-  }
-  .change dd {
-    line-height: 1.45;
-  }
-  .change__row--after dd {
-    font-size: 1.0625rem;
-    font-weight: 600;
-  }
-  /* What changed: the point of the whole exercise, in the tab's colour. */
-  .try__change {
-    margin-top: 1rem;
-    padding: 1.25rem 1.5rem 1.375rem;
-    border-radius: var(--r-tile);
-    background: var(--accent-soft);
-  }
-  .try__change > .part__label {
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  .try__change .change dt {
-    color: var(--ink);
-  }
-  @media (min-width: 48rem) {
-    .change {
-      grid-template-columns: 1fr 1fr;
-      column-gap: 2rem;
-    }
   }
 
   /* With JavaScript, each part waits as a placeholder until your answers

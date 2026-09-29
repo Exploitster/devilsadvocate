@@ -234,6 +234,35 @@ const icon = (cat: Category, size: number) =>
     scroll-margin-top: calc(-1 * (var(--header-h) + var(--tabs-h) + 1rem));
   }
 
+  /* Small phones: "Business validation" needs more room than
+     "Philosophy", so each segment takes the width of its label, the icons
+     step aside, and the chosen segment carries the highlight itself (the
+     sliding thumb assumes two equal halves). */
+  @media (max-width: 26.25rem) {
+    .capsule__set {
+      grid-template-columns: auto auto;
+    }
+    .capsule__thumb {
+      display: none;
+    }
+    .capsule__seg {
+      min-width: 0;
+      padding: 0 0.875rem;
+      transition:
+        color 200ms ease,
+        background-color 200ms ease;
+    }
+    .capsule__seg :global(svg) {
+      display: none;
+    }
+    .capsule__seg:has(input:checked) {
+      background: var(--capsule-thumb);
+      box-shadow:
+        0 1px 3px rgb(0 0 0 / 0.12),
+        inset 0 0 0 1.5px var(--accent);
+    }
+  }
+
   /* Category card */
   .cats-cards {
     display: flex;

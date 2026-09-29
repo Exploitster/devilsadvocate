@@ -24,7 +24,7 @@ interface Payload {
   sample: Sample;
 }
 
-type Part = 'position' | 'strong' | 'counter' | 'open' | 'test' | 'change';
+type Part = 'position' | 'strong' | 'counter' | 'open' | 'test';
 
 interface Game {
   data: Payload;
@@ -34,7 +34,6 @@ interface Game {
   parts: Map<Part, HTMLElement>;
   open: HTMLElement;
   test: HTMLElement;
-  after: HTMLElement;
   fills: HTMLElement | null;
   answers: Choice[];
   run: number; // bumped on restart, so a pending reply from the old run is dropped
@@ -243,7 +242,6 @@ export function initSamples(): void {
   const pushed = async (g: Game, p: PushBack) => {
     if (!(await say(g, [p.reply]))) return;
     g.test.textContent = p.test;
-    g.after.textContent = p.after;
     offer(g, [{ label: g.data.next.card, pick: () => card(g) }]);
   };
 
@@ -251,7 +249,6 @@ export function initSamples(): void {
     setStage(g, 5);
     if (!(await say(g, [g.data.done]))) return;
     fill(g, 'test');
-    fill(g, 'change');
     setStage(g, 6); // every step done
     if (g.fills) g.fills.hidden = true;
     offer(g, [
@@ -279,7 +276,6 @@ export function initSamples(): void {
       parts: new Map(partEls.map((p) => [p.dataset.part as Part, p])),
       open: panel.querySelector<HTMLElement>('[data-open]')!,
       test: panel.querySelector<HTMLElement>('[data-test]')!,
-      after: panel.querySelector<HTMLElement>('[data-after]')!,
       fills: panel.querySelector<HTMLElement>('[data-fills]'),
       answers: [],
       run: 0,

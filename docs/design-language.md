@@ -130,7 +130,7 @@ semantic HTML.
 - **Bands:** alternate sections sit on a full-width `--accent-tint` band
   (`band` class): Why this exists, How it works, Pricing, the waitlist.
 - **Tiles:** white, flat, `--r-tile`. The one big tile per section may use
-  `--accent-soft` (the promise, "What changed").
+  `--accent-soft` (the promise in "What it does").
 - **Buttons:** `btn-primary` (accent fill) for the main action,
   `btn-secondary` (accent-soft) for the rest. Pills, no arrows. Text links use
   `link-quiet`; a trailing chevron (`link-more`) is allowed on text links

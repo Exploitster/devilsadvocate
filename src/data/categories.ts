@@ -22,7 +22,7 @@ export const CATEGORY: Record<
     card: 'For big life calls and the beliefs you’ve never questioned.',
   },
   startup: {
-    label: 'Startup',
+    label: 'Business validation',
     hint: 'Ideas and work proposals',
     mode: 'Challenge my idea',
     noun: 'idea',
