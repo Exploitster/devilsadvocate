@@ -23,9 +23,9 @@ const NOTE = {
 ---
 
 <section id={SECTIONS.trySample} aria-labelledby="try-heading" class="section container-page">
-  <div class="try-head">
+  <div class="try-head section-head">
     <h2 id="try-heading">Try a sample debate</h2>
-    <ProductLine size="lg" class="try-head__sub">
+    <ProductLine size="lg" class="section-lead">
       Pick a sample and watch it argue. The answers are already filled in, so there’s nothing to type. The real thing
       argues with whatever you bring.
     </ProductLine>
@@ -88,7 +88,7 @@ const NOTE = {
                   </ol>
                 </div>
 
-                <ol class="chat__log" role="list" tabindex="0" aria-label="Sample conversation" data-log>
+                <ol class="chat__log bubbles" role="list" tabindex="0" aria-label="Sample conversation" data-log>
                   <li class="msg" data-stage="0" data-kind="type">
                     <div class="msg__in">
                       <UserLine size="sm">
@@ -314,21 +314,17 @@ const NOTE = {
 </script>
 
 <style is:global>
-  .try-head__sub {
-    margin-top: 1.25rem;
-    max-width: 44rem;
-  }
-
   .try {
     margin-top: 2.5rem;
   }
 
-  /* Sample tabs: a real tablist. */
+  /* Sample tabs: a real tablist, as a row of pills. */
   .try__tabs {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.5rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
   }
   /* The controls need JavaScript; without it you get the first sample,
      finished. The player (Pause/Play, "Fills in...") also needs motion. */
@@ -349,45 +345,46 @@ const NOTE = {
     flex: none;
     display: grid;
     min-height: 3.25rem;
-    padding: 0.5rem 1rem;
-    border: 1.5px solid var(--rule);
-    border-radius: 0.75rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 1.125rem;
     background: var(--surface);
     text-align: left;
     line-height: 1.25;
     cursor: pointer;
     transition:
-      border-color 160ms ease,
-      background-color 160ms ease;
+      background-color 200ms ease,
+      box-shadow 200ms ease;
   }
   .try__tab:hover {
-    border-color: var(--ink-muted);
+    background: var(--surface-2);
   }
   .try__tab[aria-selected='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1.5px var(--accent);
   }
   .try__tab-title {
     font-weight: 600;
   }
+  /* Phones: one full-width row per sample, so the names never jostle. */
+  @media (max-width: 39.999rem) {
+    .try__tabs {
+      display: grid;
+    }
+  }
   .try__tab-kind {
     font-size: 0.875rem;
-    color: var(--ink-muted);
-  }
-  .try__tab[aria-selected='true'] .try__tab-kind {
-    color: color-mix(in srgb, var(--paper) 80%, var(--ink));
+    color: var(--ink-2);
   }
 
   .try__grid {
     display: grid;
-    gap: 1.5rem;
+    gap: 1rem;
   }
   /* Desktop: chat and card side by side, the same height. */
   @media (min-width: 64rem) {
     .try__grid {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      column-gap: 2rem;
+      column-gap: 1.25rem;
     }
     .try__grid .chat__log {
       flex: 1 1 0;
@@ -396,13 +393,12 @@ const NOTE = {
     }
   }
 
-  /* The chat window */
+  /* The chat window: a white tile. */
   .chat {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1.5px solid var(--ink);
-    border-radius: 1rem;
+    border-radius: var(--r-tile);
     background: var(--surface);
   }
   .chat__bar {
@@ -410,43 +406,44 @@ const NOTE = {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.875rem 1rem 0.75rem 1.125rem;
-    border-bottom: 1px solid var(--rule);
+    padding: 0.875rem 1rem 0.75rem 1.25rem;
+    box-shadow: inset 0 -1px 0 var(--line);
   }
   .chat__title {
-    font-family: var(--font-product);
-    font-size: 1.0625rem;
-    font-weight: 580;
+    font-size: 1rem;
+    font-weight: 600;
     line-height: 1.3;
+    letter-spacing: -0.01em;
   }
   .chat__mode {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     line-height: 1.4;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
   .chat__toggle {
     flex: none;
     min-height: 2.75rem;
-    padding: 0 1rem;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-control);
+    padding: 0 1.125rem;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
     font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
+    transition: background-color 200ms ease;
   }
   .chat__toggle:hover {
-    border-color: var(--ink-muted);
+    background: var(--accent-soft);
   }
 
   /* Stages: they move on their own, and jump when pressed. */
   .chat__stages {
     padding: 0.625rem 0.75rem;
-    border-bottom: 1px solid var(--rule);
+    box-shadow: inset 0 -1px 0 var(--line);
   }
   .stages {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
   .stage {
     display: inline-flex;
@@ -454,10 +451,10 @@ const NOTE = {
     gap: 0.375rem;
     min-height: 2.5rem;
     padding: 0 0.75rem 0 0.375rem;
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--ink-muted);
+    color: var(--ink-2);
     cursor: pointer;
     transition:
       background-color 200ms ease,
@@ -471,17 +468,23 @@ const NOTE = {
     place-items: center;
     width: 1.5rem;
     height: 1.5rem;
-    border: 1.5px solid currentColor;
     border-radius: 50%;
+    background: var(--surface-2);
     font-size: 0.75rem;
     transition: background-color 200ms ease;
   }
   .stage[data-state='done'] {
     color: var(--ink);
   }
+  .stage[data-state='done'] .stage__num {
+    background: var(--accent-soft);
+  }
   .stage[aria-current='step'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .stage[aria-current='step'] .stage__num {
+    background: transparent;
   }
 
   /* Phones: numbers only, except the stage it's on. */
@@ -511,15 +514,16 @@ const NOTE = {
     display: flex;
     flex-direction: column;
     height: clamp(22rem, 58svh, 32rem);
-    padding: 0.25rem 1.125rem 1.25rem 0.875rem;
+    padding: 0.25rem 1rem 1.25rem;
     overflow-y: auto;
     overscroll-behavior: contain;
+    font-size: 0.9375rem;
   }
   .chat__log:focus-visible {
     outline-offset: -3px;
   }
   .msg__in {
-    padding-top: 0.875rem;
+    padding-top: 0.5rem;
   }
   .msg .lead {
     font-weight: 600;
@@ -536,50 +540,53 @@ const NOTE = {
   }
   .msg__note {
     margin-top: 0.625rem;
-    font-family: var(--font-user);
-    font-size: 0.875rem;
-    color: var(--ink-muted);
+    font-size: 0.8125rem;
+    color: var(--ink-2);
   }
 
-  /* Quick replies the sample "taps"; only shown while it plays. */
+  /* Quick replies the sample "taps"; only shown while it plays. They sit
+     on the right, where your answer will appear. */
   .msg--chips,
   .msg--dots {
     display: none;
   }
-  .chips {
+  .msg .chips {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 0.375rem;
   }
-  .chip {
-    padding: 0.375rem 0.75rem;
-    border: 1.5px solid var(--rule);
-    border-radius: 999px;
+  .msg .chip {
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 0 0 1px var(--control);
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.3;
     transition:
-      border-color 200ms ease,
+      box-shadow 200ms ease,
       background-color 200ms ease;
   }
-  .chip.is-picked {
-    border-color: var(--you);
-    background: color-mix(in srgb, var(--you) 14%, var(--surface));
+  .msg .chip.is-picked {
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1.5px var(--accent);
   }
 
   .chat-dots {
     display: inline-flex;
     gap: 0.3rem;
-    margin-left: 0.875rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--devil) 10%, var(--surface));
+    align-items: center;
+    height: 2.1em;
+    padding: 0 0.85em;
+    border-radius: 1.15em;
+    border-bottom-left-radius: 0.35em;
+    background: var(--bubble-product-bg);
   }
   .chat-dots span {
     width: 0.4rem;
     height: 0.4rem;
     border-radius: 50%;
-    background: var(--devil);
+    background: var(--ink-2);
     opacity: 0.5;
   }
 
@@ -591,7 +598,7 @@ const NOTE = {
       grid-template-rows: 0fr;
       opacity: 0;
       transition:
-        grid-template-rows 340ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        grid-template-rows 340ms var(--ease),
         opacity 260ms ease 60ms;
     }
     html.js .try .msg > .msg__in {
@@ -627,11 +634,11 @@ const NOTE = {
     }
   }
 
-  /* The hand-back card that builds itself. */
+  /* The hand-back card that builds itself: a white tile, grouped like an
+     inset list. */
   .try-card {
     overflow: hidden;
-    border: 1.5px solid var(--ink);
-    border-radius: 1rem;
+    border-radius: var(--r-tile);
     background: var(--surface);
   }
   .try-card__head {
@@ -640,35 +647,32 @@ const NOTE = {
     align-items: baseline;
     justify-content: space-between;
     gap: 0.25rem 1rem;
-    padding: 0.875rem 1.125rem;
-    background: var(--ink);
-    color: var(--paper);
+    padding: 1.125rem 1.25rem 0.5rem;
   }
   .try-card__title {
-    font-family: var(--font-product);
     font-size: var(--step-1);
-    font-weight: 580;
+    font-weight: 700;
     line-height: 1.2;
+    letter-spacing: -0.015em;
   }
   .try-card__fills {
-    font-size: 0.875rem;
-    color: color-mix(in srgb, var(--paper) 80%, var(--ink));
+    font-size: 0.8125rem;
+    color: var(--ink-2);
   }
   .part {
     display: grid;
     gap: 0.375rem;
-    padding: 0.875rem 1.125rem;
+    padding: 0.875rem 1.25rem;
   }
   .part + .part {
-    border-top: 1px dashed color-mix(in srgb, var(--ink) 28%, transparent);
+    box-shadow: inset 0 1px 0 var(--line);
   }
   .part__label {
-    font-family: var(--font-user);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: 0;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
   .part__slot {
     display: grid;
@@ -677,8 +681,8 @@ const NOTE = {
     grid-area: 1 / 1;
   }
   .part__prose {
-    font-family: var(--font-product);
-    font-size: 1.0625rem;
+    font-size: 1rem;
+    font-weight: 500;
     line-height: 1.45;
   }
   .part__chips {
@@ -698,7 +702,7 @@ const NOTE = {
     content: '–';
     position: absolute;
     left: 0;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
   .part__wait {
     display: none;
@@ -706,32 +710,38 @@ const NOTE = {
 
   .change {
     display: grid;
-    gap: 0.625rem;
+    gap: 0.75rem;
   }
   .change__row {
     display: grid;
     gap: 0.125rem;
   }
   .change dt {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
   .change dd {
     line-height: 1.45;
   }
   .change__row--after dd {
-    font-family: var(--font-product);
     font-size: 1.0625rem;
-    font-weight: 500;
+    font-weight: 600;
   }
-  /* What changed: the point of the whole exercise, under the chat. */
+  /* What changed: the point of the whole exercise, in the tab's colour. */
   .try__change {
-    margin-top: 1.25rem;
-    padding: 1rem 1.25rem 1.125rem;
-    border: 1.5px solid var(--you);
-    border-radius: 1rem;
-    background: color-mix(in srgb, var(--you) 7%, var(--surface));
+    margin-top: 1rem;
+    padding: 1.25rem 1.5rem 1.375rem;
+    border-radius: var(--r-tile);
+    background: var(--accent-soft);
+  }
+  .try__change > .part__label {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .try__change .change dt {
+    color: var(--ink);
   }
   @media (min-width: 48rem) {
     .change {
@@ -751,13 +761,14 @@ const NOTE = {
       opacity: 0;
     }
     html.js .try .part__wait {
+      --bar: color-mix(in srgb, var(--ink) 8%, transparent);
       display: block;
       align-self: start;
       height: 2.5rem;
       border-radius: 0.375rem;
       background:
-        linear-gradient(var(--rule), var(--rule)) 0 0.25rem / 85% 0.625rem no-repeat,
-        linear-gradient(var(--rule), var(--rule)) 0 1.5rem / 55% 0.625rem no-repeat;
+        linear-gradient(var(--bar), var(--bar)) 0 0.25rem / 85% 0.625rem no-repeat,
+        linear-gradient(var(--bar), var(--bar)) 0 1.5rem / 55% 0.625rem no-repeat;
       transition: opacity 240ms ease;
     }
     html.js .try .part[data-filled] .part__wait {
@@ -766,17 +777,25 @@ const NOTE = {
   }
 
   .try__note {
-    margin-top: 1.25rem;
     max-width: var(--measure);
+    margin: 1.25rem auto 0;
     font-size: var(--step--1);
-    color: var(--ink-muted);
+    text-align: center;
+    color: var(--ink-2);
   }
 
   .try__cta {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    gap: 1rem 2rem;
+    gap: 1.25rem;
     margin-top: 3rem;
+    text-align: center;
+  }
+  .try__cta .line {
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
   }
 </style>

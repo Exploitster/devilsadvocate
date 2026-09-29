@@ -220,9 +220,13 @@ const icon = (cat: Category, size: number) =>
     margin: 0;
     opacity: 0;
     cursor: pointer;
-    /* The page keeps room at the top for the header and this band
-       (scroll-padding). Without this, focusing a tab while it's stuck
-       there counts as "hidden under the bar" and scrolls the page. */
+  }
+  /* The page keeps room at the top for the header and this band
+     (scroll-padding). Without this, focusing a tab (or anything scrolling
+     one into view) while it's stuck there counts as "hidden under the
+     bar" and scrolls the page. */
+  .capsule__seg,
+  .capsule__seg input {
     scroll-margin-top: calc(-1 * (var(--header-h) + var(--tabs-h) + 1rem));
   }
 

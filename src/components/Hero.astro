@@ -26,7 +26,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
               <a href={`#${SECTIONS.waitlist}`} class="btn-primary">
                 Join the waitlist
               </a>
-              <a href={`#${SECTIONS.howItWorks}`} class="link-quiet inline-flex min-h-12 items-center">
+              <a href={`#${SECTIONS.howItWorks}`} class="link-quiet link-more inline-flex min-h-11 items-center">
                 See how it works
               </a>
             </>
@@ -51,7 +51,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
       motion. debate.ts hides the turns and plays them in once.
     */}
     <figure class="debate" data-debate aria-labelledby="debate-caption" tabindex="-1">
-      <div class="debate__turns">
+      <div class="debate__turns bubbles">
         <UserLine size="lg" bodyAs="div" class="turn turn--user" data-turn>
           <p class="turn__text" data-type-out>I’m building food delivery for college hostels. The big apps made it, so will I.</p>
         </UserLine>
@@ -103,116 +103,127 @@ import { SECTIONS, WAITLIST_ON } from '../config';
 
 <style is:global>
   /* ---------------------------------------------------------------- */
-  /* Layout                                                            */
+  /* Layout: centered on phones; copy left, chat right on desktop.     */
   /* ---------------------------------------------------------------- */
 
   .hero {
-    padding-top: clamp(1.5rem, 0.6rem + 4vw, 5.5rem);
-    padding-bottom: calc(var(--section-gap) * 0.75);
+    padding-top: clamp(2.5rem, 1rem + 5vw, 5.5rem);
+    padding-bottom: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
   }
 
   .hero__grid {
     display: grid;
-    gap: 3.5rem;
+    gap: 2.75rem;
   }
 
+  .hero__copy {
+    text-align: center;
+  }
+
+  /* Desktop: compact enough that the capsule under the hero is on screen
+     from the start on a laptop. */
   @media (min-width: 64rem) {
+    .hero {
+      padding-top: 3.5rem;
+      padding-bottom: 3rem;
+    }
     .hero__grid {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      column-gap: clamp(3rem, 5vw, 5rem);
-      align-items: start;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
+      column-gap: clamp(2.5rem, 4vw, 4rem);
+      align-items: center;
+    }
+    .hero__copy {
+      text-align: left;
     }
   }
 
-  /* The headline carries the page: each sentence gets its own line(s),
-     so the setup and the turn read as two beats. */
+  /* Each sentence on its own line(s): the setup, then the turn. */
   .hero__headline {
     font-size: var(--step-display);
-    font-weight: 580;
-    line-height: 1.02;
-    letter-spacing: -0.025em;
-    max-width: 13ch;
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
   }
   .hero__sentence {
     display: block;
   }
+  /* Sized so each sentence stays on one line beside the chat. */
+  @media (min-width: 64rem) {
+    .hero__headline {
+      font-size: clamp(2.75rem, 0.375rem + 3.9vw, 3.5rem);
+    }
+  }
 
   .hero__subhead {
-    margin-top: 1.25rem;
-    max-width: 36ch;
+    margin: 1.25rem auto 0;
+    max-width: 34rem;
     font-size: var(--step-1);
-    line-height: 1.42;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--ink-2);
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 0.75rem 1.5rem;
     margin-top: 1.75rem;
   }
 
   .hero__smallprint {
-    margin-top: 1rem;
-    max-width: 44ch;
+    margin: 1rem auto 0;
+    max-width: 30rem;
     font-size: var(--step--1);
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
 
   @media (min-width: 64rem) {
+    .hero__subhead,
+    .hero__smallprint {
+      margin-inline: 0;
+    }
     .hero__subhead {
-      margin-top: 2rem;
+      font-size: 1.25rem;
     }
     .hero__actions {
-      margin-top: 2.25rem;
+      justify-content: flex-start;
     }
   }
 
   /* ---------------------------------------------------------------- */
-  /* The debate                                                        */
+  /* The debate: a chat on a white tile                                */
   /* ---------------------------------------------------------------- */
 
   .debate {
-    margin: 0;
-    padding-top: 2rem;
-    border-top: 1px solid var(--rule);
+    width: 100%;
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: 1.25rem 1rem 0.5rem;
+    border-radius: var(--r-tile);
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
   }
   .debate:focus {
     outline: none;
   }
-
-  /* On desktop the debate reads like a chat log in the margin. */
-  @media (min-width: 64rem) {
+  @media (min-width: 48rem) {
     .debate {
-      padding-top: 0.5rem;
-      padding-left: clamp(2rem, 3vw, 3rem);
-      border-top: 0;
-      border-left: 1px solid var(--rule);
+      padding: 1.5rem 1.5rem 0.75rem;
     }
   }
 
   .debate__turns {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.625rem;
+    font-size: 1rem;
+    line-height: 1.4;
   }
-
-  /* Big enough to be the page's one bold moment, small enough that a
-     reply keeps a readable line length in the desktop column. */
-  .debate .line--user.line--lg {
-    font-size: 1.25rem;
-  }
-  .debate .line--product.line--lg {
-    --line-indent: 1.75rem;
-    font-size: 1.3125rem;
-  }
-  @media (min-width: 64rem) {
-    .debate .line--user.line--lg {
-      font-size: 1.1875rem;
-    }
-    .debate .line--product.line--lg {
-      --line-indent: 2.25rem;
-    }
+  .debate__turns .line--lg {
+    font-size: inherit;
+    line-height: inherit;
   }
 
   .debate .line__body {
@@ -220,7 +231,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
   }
 
   .turn__receipt {
-    margin-top: 0.625rem;
+    margin-top: 0.5rem;
   }
 
   .debate__footer {
@@ -230,12 +241,14 @@ import { SECTIONS, WAITLIST_ON } from '../config';
     justify-content: space-between;
     gap: 0 1rem;
     min-height: 2.75rem;
-    margin-top: 1.75rem;
+    margin-top: 0.75rem;
+    padding-top: 0.25rem;
+    box-shadow: inset 0 1px 0 var(--line);
   }
 
   .debate__caption {
     font-size: var(--step--1);
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
 
   .debate__replay {
@@ -257,7 +270,9 @@ import { SECTIONS, WAITLIST_ON } from '../config';
   /* ---------------------------------------------------------------- */
 
   .debate[data-state] .turn {
-    transition: opacity 280ms ease-out, transform 280ms ease-out;
+    transition:
+      opacity 280ms ease-out,
+      transform 280ms var(--ease);
   }
   .debate[data-state] .turn:not([data-step]),
   .debate[data-state] .turn[data-step='hidden'] {
@@ -265,7 +280,11 @@ import { SECTIONS, WAITLIST_ON } from '../config';
     transform: translateY(0.375rem);
   }
 
-  /* Hidden parts still take up their space, so nothing below jumps. */
+  /* Hidden parts still take up their space, so nothing below jumps. The
+     bubble itself fills in when its words arrive. */
+  .debate[data-state] .line__body {
+    transition: background-color 240ms ease;
+  }
   .debate[data-state] .turn__text,
   .debate[data-state] .turn__receipt {
     transition: opacity 320ms ease-out;
@@ -273,10 +292,18 @@ import { SECTIONS, WAITLIST_ON } from '../config';
   .debate[data-state] .turn:not([data-step='shown']):not([data-step='composing']) :is(.turn__text, .turn__receipt) {
     opacity: 0;
   }
+  .debate[data-state] .turn--product:not([data-step='shown']) .line__body {
+    background-color: transparent;
+  }
 
-  /* 1. The user's message types itself out behind a blinking cursor.
-        debate.ts splits it into per-character spans; characters not yet
-        typed are invisible but keep their space, so lines never re-wrap. */
+  /* 1. The user's message types itself out in an outlined draft bubble
+        behind a blinking cursor, then fills in as it's sent. debate.ts
+        splits it into per-character spans; characters not yet typed are
+        invisible but keep their space, so lines never re-wrap. */
+  .debate[data-state] .turn--user:not([data-step='shown']) .line__body {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
   .typed__char {
     position: relative;
   }
@@ -291,7 +318,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
     width: 2px;
     height: 1.1em;
     border-radius: 1px;
-    background: var(--you);
+    background: var(--accent);
     animation: caret 1s steps(1) infinite;
   }
   @keyframes caret {
@@ -300,12 +327,18 @@ import { SECTIONS, WAITLIST_ON } from '../config';
     }
   }
 
-  /* 2. Replies: the speech mark arrives first with typing dots, then the words. */
+  /* 2. Replies: a small grey bubble with typing dots, then the words. */
   .typing {
     position: absolute;
-    top: 0.55em;
+    top: 0;
     left: 0;
     gap: 0.3rem;
+    align-items: center;
+    height: 2.1em;
+    padding: 0 0.85em;
+    border-radius: 1.15em;
+    border-bottom-left-radius: 0.35em;
+    background: var(--bubble-product-bg);
   }
   .debate[data-state] .turn[data-step='typing'] .typing {
     display: flex;
@@ -314,7 +347,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
     width: 0.4rem;
     height: 0.4rem;
     border-radius: 50%;
-    background: var(--devil);
+    background: var(--ink-2);
     animation: typing 900ms ease-in-out infinite;
   }
   .typing span:nth-child(2) {
@@ -327,7 +360,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
     0%,
     60%,
     100% {
-      opacity: 0.25;
+      opacity: 0.35;
       transform: translateY(0);
     }
     30% {
@@ -340,7 +373,7 @@ import { SECTIONS, WAITLIST_ON } from '../config';
         its line lands. */
   .debate[data-state] .receipt {
     background-color: transparent;
-    background-image: linear-gradient(var(--receipt-bg), var(--receipt-bg));
+    background-image: linear-gradient(var(--evidence), var(--evidence));
     background-repeat: no-repeat;
     background-size: 0% 100%;
     transition: background-size 520ms cubic-bezier(0.3, 0.7, 0.3, 1) 380ms;

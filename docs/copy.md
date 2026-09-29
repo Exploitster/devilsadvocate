@@ -3,7 +3,7 @@
 Source of truth for all on-page text. You may tighten wording, but keep the tone and the facts. The waitlist stores signups in Supabase; the contact address comes from `PUBLIC_CONTACT_EMAIL`. The product is text-only at launch. Pricing is shown in USD; there is no checkout, and every pricing button leads to the waitlist.
 
 ## Nav
-Logo: Devils Advocate (Fraunces). Links: How it works, Try a sample, Pricing, FAQ. Button: Join the waitlist.
+Logo: Devils Advocate (semibold wordmark). Links: How it works, Try a sample, Pricing, FAQ. Button: Join the waitlist.
 
 ## Hero
 Headline: Your idea sounds great. That's what worries us.
@@ -20,7 +20,9 @@ Hero debate animation script (an illustration; plays once):
 
 ## Category tabs (just below the hero)
 Line above: What are you bringing? The rest of the page changes to match.
-Tabs (sticky under the header): Philosophy (Life decisions and beliefs) / Startup (Ideas and work proposals). Startup is selected first, since it continues the hero's example. The choice is kept in the link as ?for=philosophy.
+Tabs (a floating capsule; hides while you scroll down, returns when you scroll up): Philosophy (Life decisions and beliefs) / Startup (Ideas and work proposals). Startup is selected first, since it continues the hero's example. The choice is kept in the link as ?for=philosophy.
+Mode card under the capsule: Philosophy: "Challenge my decision" / "For big life calls and the beliefs you've never questioned." Startup: "Challenge my idea" / "For startup ideas, side projects, and work proposals."
+Notice after a switch, when the mode card is off screen: "Now showing {Philosophy|Startup}, from Why this exists to the hand-back card."
 Everything from "Why this exists" to "What you get" is written for the chosen tab. Pricing, What we won't do, FAQ, and the waitlist are shared; the waitlist's example idea follows the tab (Startup: "e.g. A pet-food brand for city apartments"; Philosophy: "e.g. Should I take the job in another city?").
 
 ## Why this exists
@@ -151,7 +153,7 @@ Under the cards (small print):
 
 Math (keep it true if prices change): $59 × 12 = $708; $708 − $150 = $558 saved (79%); $150 ÷ 12 = $12.50 a month.
 
-Design: two plans only, side by side on desktop, stacked on mobile with yearly first. The yearly card is highlighted with --devil on its border and button; savings sit as a short label under the price, not a corner badge. No identical shadowed cards, no gradient, no "Most popular" ribbon. Prices are large, in Fraunces. Both buttons scroll to #waitlist and focus the email field.
+Design: two plans only, side by side on desktop, stacked on mobile with yearly first. The yearly card is highlighted with an accent ring and the filled accent button; savings sit as a short label under the price, not a corner badge. No gradient, no "Most popular" ribbon. Prices are large and bold. Both buttons scroll to #waitlist and focus the email field.
 
 ## What we won't do
 Heading: Things we refuse to do
@@ -187,7 +189,7 @@ Button: Join the waitlist
 Success (a pop-up over the page, the product answering: a short exchange, then a mini hand-back card; the form is replaced by a one-line note underneath):
 - "You're in, {first name}. Welcome to the argument." (without a name: "You're in. Welcome to the argument.")
 - "We'll email you before the beta opens on December 1. The waitlist gets in first, so you'll be one of the first people we politely disagree with."
-- If they typed an idea: it's echoed back as their line (teal), then: "Noted. That's the first thing we'll argue about. Enjoy being completely sure of it until then."
+- If they typed an idea: it's echoed back as their line (their chat bubble), then: "Noted. That's the first thing we'll argue about. Enjoy being completely sure of it until then."
 - Otherwise, one line for the first thing they said they'd bring:
   - A startup idea: "Bring the startup idea. We're already dusting off the graveyard files."
   - A life decision: "Bring the big decision. Aristotle has been warned."

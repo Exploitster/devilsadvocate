@@ -19,29 +19,25 @@ const pub = (f) => path.join(root, 'public', f);
 const font = (pkg, file) =>
   'data:font/woff2;base64,' +
   fs.readFileSync(path.join(root, 'node_modules/@fontsource-variable', pkg, 'files', file)).toString('base64');
-const FRAUNCES = font('fraunces', 'fraunces-latin-opsz-normal.woff2');
-const BRICOLAGE = font('bricolage-grotesque', 'bricolage-grotesque-latin-opsz-normal.woff2');
+const INTER = font('inter', 'inter-latin-wght-normal.woff2');
 
+// The site's language: light grey page, a chat bubble in the mint accent,
+// the headline in semibold ink. Colours match src/styles/tokens.css (light).
 const OG_HTML = `<!doctype html><html><head><style>
-  @font-face { font-family: Fraunces; src: url(${FRAUNCES}) format('woff2'); font-weight: 100 900; }
-  @font-face { font-family: Bricolage; src: url(${BRICOLAGE}) format('woff2'); font-weight: 200 800; }
+  @font-face { font-family: Inter; src: url(${INTER}) format('woff2'); font-weight: 100 900; }
   * { margin: 0; box-sizing: border-box; }
-  body { width: 1200px; height: 630px; background: #F1F3F8; color: #1A1F36; font-optical-sizing: auto;
-         padding: 68px 80px 60px; display: flex; flex-direction: column; }
-  .mark { font-family: Fraunces; font-weight: 700; line-height: 1; }
-  main { margin-block: auto; }
-  .you { display: flex; gap: 18px; align-items: flex-start; font-family: Bricolage; font-size: 32px; font-weight: 500; }
-  .you .mark { font-family: Bricolage; color: #13766A; font-size: 60px; margin-top: -4px; }
-  .us { display: flex; gap: 22px; margin: 38px 0 0 56px; }
-  .us .mark { color: #B3124E; font-size: 118px; margin-top: 2px; }
-  h1 { font-family: Fraunces; font-size: 100px; font-weight: 580; line-height: 1.02; letter-spacing: -0.025em; }
-  footer { display: flex; justify-content: space-between; align-items: baseline;
-           font-family: Bricolage; font-size: 26px; color: #5A6078; }
-  footer b { font-family: Fraunces; font-weight: 600; font-size: 32px; color: #1A1F36; }
+  body { width: 1200px; height: 630px; background: #F5F5F7; color: #1D1D1F; font-family: Inter;
+         padding: 64px 80px 56px; display: flex; flex-direction: column; letter-spacing: -0.01em; }
+  main { margin-block: auto; display: grid; gap: 40px; }
+  .bubble { justify-self: end; max-width: 640px; padding: 20px 28px; border-radius: 34px 34px 10px 34px;
+            background: #D3F0E2; font-size: 32px; font-weight: 500; line-height: 1.3; }
+  h1 { font-size: 92px; font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
+  footer { display: flex; justify-content: space-between; align-items: baseline; font-size: 26px; color: #636368; }
+  footer b { font-weight: 600; font-size: 30px; color: #1D1D1F; }
 </style></head><body>
   <main>
-  <div class="you"><span class="mark">“</span><span>I’m skipping placements to build my startup full time.</span></div>
-  <div class="us"><span class="mark">“</span><h1>Your idea sounds great.<br>That’s what worries us.</h1></div>
+  <p class="bubble">I’m skipping placements to build my startup full time.</p>
+  <h1>Your idea sounds great.<br>That’s what worries us.</h1>
   </main>
   <footer><b>Devils Advocate</b><span>Private beta opens December 1, 2026.</span></footer>
 </body></html>`;

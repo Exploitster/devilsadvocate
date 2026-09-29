@@ -12,8 +12,9 @@ export function getStaticPaths() {
 
 <Base title="Privacy" description="What Devils Advocate does with your waitlist details.">
   <article class="container-page py-[calc(var(--section-gap)/2)]">
-    <h1 class="max-w-[16ch] !text-step-4">Privacy</h1>
-    <div class="mt-8 max-w-measure space-y-4">
+    <div class="mx-auto max-w-measure">
+    <h1 class="!text-step-4">Privacy</h1>
+    <div class="mt-8 space-y-4 text-ink-2">
       <p>
         When you join the waitlist we collect your email, your first name, your role, your interests, the optional
         one-line idea you’d bring, where you came from (the traffic source, if the link you followed named one),
@@ -27,6 +28,7 @@ export function getStaticPaths() {
         delete your data.
       </p>
       <p><a class="link-quiet inline-flex min-h-11 items-center" href={path('/')}>Back to the home page</a></p>
+    </div>
     </div>
   </article>
 </Base>

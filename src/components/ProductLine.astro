@@ -2,7 +2,8 @@
 import type { HTMLAttributes } from 'astro/types';
 
 /**
- * The product's voice: Fraunces, indented, raspberry speech mark.
+ * The product's voice. Plain text on the page; inside a conversation
+ * (.bubbles, see global.css) a left-aligned grey bubble.
  * Pass `speaker={false}` where the context already says whose line it is.
  */
 interface Props extends Omit<HTMLAttributes<'div'>, 'class'> {

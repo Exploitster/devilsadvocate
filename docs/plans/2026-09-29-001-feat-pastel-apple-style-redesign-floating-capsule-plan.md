@@ -1,7 +1,7 @@
 ---
 title: "feat: Pastel, Apple-style redesign with a floating category capsule"
 type: feat
-status: active
+status: completed
 date: 2026-09-29
 detail: comprehensive
 ---

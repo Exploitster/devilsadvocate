@@ -4,12 +4,12 @@ import { SECTIONS } from '../config';
 import { CATEGORIES } from '../data/categories';
 ---
 
-<section id={SECTIONS.whatYouGet} aria-labelledby="get-heading" class="section container-page">
+<section id={SECTIONS.whatYouGet} aria-labelledby="get-heading" class="section band container-page">
   <div class="get">
     <div class="get__copy">
-      <h2 id="get-heading">The hand-back card</h2>
-      <p class="get__intro">Every session ends with one card that’s yours to keep:</p>
-      <ul class="get__list" role="list">
+      <h2 id="get-heading">The <span class="whitespace-nowrap">hand-back</span> card</h2>
+      <p class="get__intro section-lead">Every session ends with one card that’s yours to keep:</p>
+      <ul class="get__list list-check" role="list">
         <li>Your position, in one line</li>
         <li>The 3 toughest counterpoints, each with its source</li>
         <li>What’s genuinely strong in your case</li>
@@ -36,42 +36,21 @@ import { CATEGORIES } from '../data/categories';
   }
 
   .get__intro {
-    margin-top: 1.25rem;
     max-width: var(--measure);
   }
 
   .get__list {
-    display: grid;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-  .get__list li {
-    position: relative;
-    padding-left: 1.5rem;
-  }
-  /* A real en dash, so every bullet renders at the same weight. */
-  .get__list li::before {
-    content: '–';
-    position: absolute;
-    left: 0.125rem;
-    color: var(--ink-muted);
+    margin-top: 1.5rem;
   }
 
-  /* The product gets the last word, in its own voice. */
+  /* The product gets the last word. */
   .get__kicker {
     margin-top: 2rem;
     max-width: 24ch;
-    font-family: var(--font-product);
     font-size: var(--step-2);
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
-    letter-spacing: -0.01em;
-  }
-
-  /* Leave room for the card's offset shadow so it never touches the edge. */
-  .get__card {
-    padding-right: 0.5rem;
-    padding-bottom: 0.5rem;
+    letter-spacing: -0.015em;
   }
 
   @media (min-width: 64rem) {

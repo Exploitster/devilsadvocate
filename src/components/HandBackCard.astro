@@ -69,70 +69,63 @@ const titleId = `hbc-title-${category}`;
 </article>
 
 <style>
+  /* A white tile that floats a little: the one thing on the page you'd
+     screenshot and send a friend. */
   .hbc {
-    --hbc-pad: clamp(1.125rem, 0.8rem + 1.4vw, 1.75rem);
+    --hbc-pad: clamp(1.25rem, 0.9rem + 1.4vw, 1.75rem);
     position: relative;
     width: 100%;
     max-width: 30rem;
     overflow: hidden;
-    border: 1.5px solid var(--ink);
-    border-radius: 0.875rem;
+    border-radius: var(--r-tile);
     background: var(--surface);
     color: var(--ink);
-    /* A flat, printed-looking offset rather than a soft glow. */
-    box-shadow: 0.5rem 0.5rem 0 color-mix(in srgb, var(--ink) 12%, transparent);
-  }
-
-  @media (min-width: 64rem) {
-    .hbc {
-      transform: rotate(-1.25deg);
-    }
+    box-shadow: var(--shadow-lift);
   }
 
   .hbc__head {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    gap: 0.25rem 1rem;
-    padding: 1rem var(--hbc-pad);
-    background: var(--ink);
-    color: var(--paper);
+    gap: 0.5rem 1rem;
+    padding: 1.375rem var(--hbc-pad) 0.5rem;
   }
 
   .hbc__title {
-    font-family: var(--font-product);
     font-size: var(--step-2);
-    font-weight: 580;
+    font-weight: 700;
     line-height: 1.1;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   .hbc__mode {
-    font-size: 0.875rem;
-    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--r-pill);
+    background: var(--accent-soft);
+    font-size: 0.8125rem;
+    font-weight: 600;
   }
 
   .hbc__part {
-    padding: 1.125rem var(--hbc-pad);
+    padding: 1rem var(--hbc-pad);
   }
   .hbc__part + .hbc__part {
-    border-top: 1px dashed color-mix(in srgb, var(--ink) 28%, transparent);
+    box-shadow: inset 0 1px 0 var(--line);
   }
 
   .hbc__label {
     margin-bottom: 0.5rem;
-    font-family: var(--font-user);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.4;
     letter-spacing: 0;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
 
   .hbc :global(.hbc__position) {
     font-size: 1.0625rem !important;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .hbc__counter {
@@ -142,28 +135,31 @@ const titleId = `hbc-title-${category}`;
   }
   .hbc__counter li {
     position: relative;
-    padding-left: 1.75rem;
+    padding-left: 2.25rem;
     counter-increment: point;
   }
   .hbc__counter li::before {
     content: counter(point);
     position: absolute;
-    left: 0;
     top: 0;
-    font-family: var(--font-product);
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--devil);
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
   }
 
   .hbc__point,
   .hbc__prose,
   .hbc__questions {
-    font-family: var(--font-product);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     line-height: 1.45;
-    letter-spacing: 0.005em;
   }
   .hbc__point {
     margin-bottom: 0.3rem;
@@ -171,8 +167,8 @@ const titleId = `hbc-title-${category}`;
 
   .hbc__note {
     margin-top: 0.875rem;
-    font-size: 0.875rem;
-    color: var(--ink-muted);
+    font-size: 0.8125rem;
+    color: var(--ink-2);
   }
 
   .hbc__questions {
@@ -181,14 +177,14 @@ const titleId = `hbc-title-${category}`;
   }
   .hbc__questions li {
     position: relative;
-    padding-left: 1.75rem;
+    padding-left: 2.25rem;
   }
   .hbc__questions li::before {
     content: '?';
     position: absolute;
-    left: 0.1rem;
-    font-weight: 600;
-    color: var(--you);
+    left: 0.45rem;
+    font-weight: 700;
+    color: var(--accent);
   }
 
   .hbc__foot {
@@ -196,15 +192,14 @@ const titleId = `hbc-title-${category}`;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.25rem 1rem;
-    padding: 0.875rem var(--hbc-pad);
-    border-top: 1.5px solid var(--ink);
+    padding: 0.875rem var(--hbc-pad) 1.125rem;
+    box-shadow: inset 0 1px 0 var(--line);
     font-size: 0.875rem;
-    font-weight: 500;
+    color: var(--ink-2);
   }
 
   .hbc__brand {
-    font-family: var(--font-product);
-    font-size: 1rem;
-    font-weight: 580;
+    font-weight: 600;
+    color: var(--ink);
   }
 </style>

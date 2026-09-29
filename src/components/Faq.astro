@@ -5,12 +5,14 @@ import { SECTIONS, WAITLIST, WAITLIST_ON } from '../config';
 ---
 
 <section id={SECTIONS.faq} aria-labelledby="faq-heading" class="section container-page">
-  <div class="split">
-    <h2 id="faq-heading" class="split__head">FAQ</h2>
+  <div class="section-head">
+    <h2 id="faq-heading">FAQ</h2>
+  </div>
+  <div>
 
     {/* Native <details>: opens and closes with no JavaScript. Questions are
          the user's lines, answers are ours. */}
-    <div class="faq split__body">
+    <div class="faq">
       <details class="faq__item" open>
         <summary class="faq__q">
           <UserLine as="span" bodyAs="span" speaker={false}>Isn’t this just another AI chatbot with an attitude?</UserLine>
@@ -105,12 +107,18 @@ import { SECTIONS, WAITLIST, WAITLIST_ON } from '../config';
 </section>
 
 <style>
+  /* Rows in one tile, like a settings list. Questions in the heavier
+     weight; answers in the secondary ink. */
   .faq {
-    border-top: 1px solid var(--rule);
+    max-width: 50rem;
+    margin: 2.5rem auto 0;
+    padding: 0.25rem clamp(1.25rem, 0.8rem + 2vw, 2.5rem);
+    border-radius: var(--r-tile);
+    background: var(--surface);
   }
 
-  .faq__item {
-    border-bottom: 1px solid var(--rule);
+  .faq__item + .faq__item {
+    box-shadow: inset 0 1px 0 var(--line);
   }
 
   .faq__q {
@@ -119,41 +127,48 @@ import { SECTIONS, WAITLIST, WAITLIST_ON } from '../config';
     justify-content: space-between;
     gap: 1rem;
     min-height: 3rem;
-    padding: 1.125rem 0;
+    padding: 1.25rem 0;
     cursor: pointer;
     list-style: none;
-    font-weight: 500;
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
   .faq__q::-webkit-details-marker {
     display: none;
   }
-  .faq__q:hover :global(.line__body) {
-    text-decoration: underline;
-    text-decoration-color: var(--rule);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
+  .faq__q:hover {
+    color: var(--accent);
   }
 
-  /* Plus that turns into a minus: two bars, one of which folds away. */
+  /* A plus that turns into a cross: two bars, rotated. */
   .faq__q::after {
     content: '';
     flex: none;
     width: 0.875rem;
     height: 0.875rem;
-    margin-top: 0.45em;
+    margin-top: 0.35em;
     background:
       linear-gradient(currentColor, currentColor) center / 100% 1.75px no-repeat,
       linear-gradient(currentColor, currentColor) center / 1.75px 100% no-repeat;
+    transition: transform 240ms var(--ease);
   }
   .faq__item[open] > .faq__q::after {
-    background: linear-gradient(currentColor, currentColor) center / 100% 1.75px no-repeat;
+    transform: rotate(45deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq__q::after {
+      transition: none;
+    }
   }
 
   .faq__item :global(.faq__a) {
     padding-bottom: 1.5rem;
+    color: var(--ink-2);
   }
 
   .faq__mail {
+    color: var(--accent);
     text-decoration-line: underline;
     overflow-wrap: anywhere;
   }

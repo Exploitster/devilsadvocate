@@ -66,6 +66,8 @@
   --ink-2: var(--gray-ink-2);
   --line: rgb(0 0 0 / 0.08);
   --control: var(--gray-control);
+  /* Errors only: a system red, never the accent (which changes with the tab). */
+  --danger: #c7001b;
   --on-accent: #ffffff;
   --evidence: var(--butter-l);
   --frame: #1d1d1f;
@@ -120,18 +122,6 @@
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
-
-  /* ---- Legacy names (kept only while components move over) ----------- */
-  --paper: var(--page);
-  --ink-muted: var(--ink-2);
-  --devil: var(--accent);
-  --devil-hover: var(--accent-hover);
-  --on-devil: var(--on-accent);
-  --you: var(--accent);
-  --receipt-bg: var(--evidence);
-  --rule: var(--line);
-  --radius-control: var(--r-control);
-  --radius-chip: var(--r-chip);
 }
 
 @media (min-width: 48rem) {
@@ -160,6 +150,7 @@
     --mint-hover: var(--mint-hover-d);
 
     --line: rgb(255 255 255 / 0.12);
+    --danger: #ff6961;
     /* Light pastel buttons carry dark text in dark mode. */
     --on-accent: #1d1d1f;
     --evidence: var(--butter-d);

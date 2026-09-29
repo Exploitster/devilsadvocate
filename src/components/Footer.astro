@@ -2,9 +2,9 @@
 import { WAITLIST_ON, path } from '../config';
 ---
 
-<footer class="border-t border-rule">
-  <div class="container-page flex flex-col gap-4 py-10 sm:flex-row sm:items-baseline sm:justify-between">
-    <p class="max-w-measure text-ink-muted">
+<footer class="site-footer">
+  <div class="container-page flex flex-col gap-3 py-8 sm:flex-row sm:items-center sm:justify-between">
+    <p class="max-w-measure">
       Built by Avinash G, an MBA student who heard “great idea” one too many times.
     </p>
     {
@@ -16,3 +16,11 @@ import { WAITLIST_ON, path } from '../config';
     }
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    box-shadow: inset 0 1px 0 var(--line);
+    font-size: 0.875rem;
+    color: var(--ink-2);
+  }
+</style>

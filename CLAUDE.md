@@ -40,44 +40,34 @@ Rules:
 - No "free" claims about the product. (Joining the waitlist is free, and the pricing section says so.)
 - Sentence case everywhere. Buttons say exactly what happens ("Join the waitlist").
 
-# DESIGN LANGUAGE: "Two voices on one page"
-Concept: the page itself is a conversation between the reader and the devil's advocate. Every visual choice encodes whose line it is.
+# DESIGN LANGUAGE: calm, pastel, Apple-style
+The full spec is `docs/design-language.md`. It governs this site and the product app that follows. Tokens live in `src/styles/tokens.css`; name tokens, never copy hex values into components.
 
-Typography, two families from Google Fonts (self-hosted via @fontsource or loaded with preconnect):
-- Fraunces is the product's voice: headlines and anything Devils Advocate "says." Use its optical sizing.
-- Bricolage Grotesque is the user's voice: the user's lines in mockups, plus body text, UI, and forms.
-Set a real type scale (for example 1.25 ratio on mobile, 1.333 on desktop), body at 17–18px, line length under 70 characters, and serif lines slightly more open.
+Summary:
+- Light grey page, white tiles, one soft pastel accent at a time. The accent follows the mode: Startup / "Challenge my idea" is mint (the default), Philosophy / "Challenge my decision" is lavender. It is set on `<html data-category>`.
+- One type family: the system stack (SF Pro on Apple devices, self-hosted Inter elsewhere). Semibold headings, secondary text in `--ink-2`, body at 17px, sentence case.
+- The two voices are chat bubbles inside conversations (the `bubbles` class): the user's on the right in the accent's soft tint, the product's on the left in grey. Outside conversations, lines are plain text.
+- Evidence is the only yellow: `Receipt` chips on `--evidence`.
+- Tiles are flat; only floating things get shadows (header, capsule, notice, dialog, phone mockups, the hand-back card). Glass (translucent with blur) for the header and the capsule, solid when people ask for reduced transparency or more contrast.
+- Spend boldness in three places: the hero's animated debate, the scroll-driven "How it works", and the sample debate. Everything else stays quiet.
 
-Color tokens (CSS variables, light and dark):
-- --paper #F1F3F8 (cool page background)
-- --surface #FFFFFF
-- --ink #1A1F36 (text)
-- --ink-muted #5A6078
-- --devil #B3124E (deep raspberry: the product's voice, its speech marks, primary buttons)
-- --you #13766A (deep teal: the user's voice and speech marks)
-- --receipt #F5D547 (highlighter yellow: ONLY behind cited evidence)
-Dark mode: --paper #141830, --surface #1D2240, --ink #E8EAF3, --ink-muted #A3A8C3, --devil #FF5C8A, --you #3CC9B5, --receipt #E8C63A at 35% opacity behind text.
-
-Layout:
-- Conversation as structure: user lines align left with a teal marker; product replies indent from the left and carry a raspberry marker. Use this in the hero, the journey, and the FAQ (questions are the user's voice, answers are the product's voice).
-- Left-aligned text, generous whitespace between sections, and no card grids for regular content.
-- Citations appear as small inline "receipt" chips, highlighted yellow.
-- Spend boldness in three places: the hero's animated debate, the scroll-driven "How it works", and the sample debate. Everything else stays quiet and disciplined.
+Mode capsule (the Philosophy / Startup tabs):
+- A centered, floating glass segmented control just below the hero. Once scrolled past, it sticks under the header, hides while you scroll down, and comes back when you scroll up.
+- A switch must be visible: the accent changes across the page, the new content slides in from the side of the tab you picked, the mode card under the capsule changes, and a short notice appears when that card is off screen. Your place on the page is kept.
 
 Motion:
 - The hero debate plays once on load.
 - "How it works" moves with the scroll: a sticky stage (numbered rail, step text, phone) where scrolling advances the steps and each phone screen animates in. Rail numbers jump to a step. On screens too short for the stage it's a list whose phones play as they arrive.
 - The sample debate plays when its chat scrolls into view, pauses when it leaves, and has Pause / Play / Play again.
-- Switching tabs fades the new content in and keeps your place on the page.
-- No fade-in-on-scroll for regular sections. Respect prefers-reduced-motion by showing the final state instantly: "How it works" becomes a plain list and the sample shows the finished conversation and card.
+- No fade-in-on-scroll for regular sections. Respect prefers-reduced-motion by showing the final state instantly: "How it works" becomes a plain list, the sample shows the finished conversation and card, and switching tabs doesn't slide.
 
 Avoid (these make a page look generated):
 - All-caps eyebrow labels above headings.
 - Highlighting one word of a headline in a different color or italic.
-- Arrows appended to buttons.
+- Arrows appended to buttons (a › chevron on a text link is fine).
 - Monospace for labels.
 - "A · B · C" meta strings.
-- Identical rounded cards with the same soft shadow.
+- Shadows on tiles that sit flat on the page; more than one accent on screen.
 - Gradient washes.
 - Cream and terracotta palettes.
 - Stock illustrations or emoji as decoration.
@@ -93,7 +83,7 @@ Quality floor: responsive from 360px up, visible keyboard focus, WCAG AA contras
 # COPY (use it; you may tighten wording, but keep the tone and the facts)
 
 ## Nav
-Logo: Devils Advocate (Fraunces). Links: How it works, Try a sample, Pricing, FAQ. Button: Join the waitlist.
+Logo: Devils Advocate (semibold wordmark). Links: How it works, Try a sample, Pricing, FAQ. Button: Join the waitlist.
 
 ## Hero
 Headline: Your idea sounds great. That's what worries us.
@@ -110,7 +100,9 @@ Hero debate animation script (an illustration; plays once):
 
 ## Category tabs (just below the hero)
 Line above: What are you bringing? The rest of the page changes to match.
-Tabs (sticky under the header): Philosophy (Life decisions and beliefs) / Startup (Ideas and work proposals). Startup is selected first, since it continues the hero's example. The choice is kept in the link as ?for=philosophy.
+Tabs (a floating capsule; see DESIGN LANGUAGE): Philosophy (Life decisions and beliefs) / Startup (Ideas and work proposals). Startup is selected first, since it continues the hero's example. The choice is kept in the link as ?for=philosophy.
+Mode card under the capsule: Philosophy: "Challenge my decision" / "For big life calls and the beliefs you've never questioned." Startup: "Challenge my idea" / "For startup ideas, side projects, and work proposals."
+Notice after a switch, when the mode card is off screen: "Now showing {Philosophy|Startup}, from Why this exists to the hand-back card."
 Everything from "Why this exists" to "What you get" is written for the chosen tab. Pricing, What we won't do, FAQ, and the waitlist are shared; the waitlist's example idea follows the tab (Startup: "e.g. A pet-food brand for city apartments"; Philosophy: "e.g. Should I take the job in another city?").
 
 ## Why this exists
@@ -241,7 +233,7 @@ Under the cards (small print):
 
 Math (keep it true if prices change): $59 × 12 = $708; $708 − $150 = $558 saved (79%); $150 ÷ 12 = $12.50 a month.
 
-Design: two plans only, side by side on desktop, stacked on mobile with yearly first. The yearly card is highlighted with --devil on its border and button; savings sit as a short label under the price, not a corner badge. No identical shadowed cards, no gradient, no "Most popular" ribbon. Prices are large, in Fraunces. Both buttons scroll to #waitlist and focus the email field.
+Design: two plans only, side by side on desktop, stacked on mobile with yearly first. The yearly card is highlighted with an accent ring and the filled accent button; savings sit as a short label under the price, not a corner badge. No gradient, no "Most popular" ribbon. Prices are large and bold. Both buttons scroll to #waitlist and focus the email field.
 
 ## What we won't do
 Heading: Things we refuse to do
@@ -277,7 +269,7 @@ Button: Join the waitlist
 Success (a pop-up over the page, the product answering: a short exchange, then a mini hand-back card; the form is replaced by a one-line note underneath):
 - "You're in, {first name}. Welcome to the argument." (without a name: "You're in. Welcome to the argument.")
 - "We'll email you before the beta opens on December 1. The waitlist gets in first, so you'll be one of the first people we politely disagree with."
-- If they typed an idea: it's echoed back as their line (teal), then: "Noted. That's the first thing we'll argue about. Enjoy being completely sure of it until then."
+- If they typed an idea: it's echoed back as their line (their chat bubble), then: "Noted. That's the first thing we'll argue about. Enjoy being completely sure of it until then."
 - Otherwise, one line for the first thing they said they'd bring:
   - A startup idea: "Bring the startup idea. We're already dusting off the graveyard files."
   - A life decision: "Bring the big decision. Aristotle has been warned."
@@ -300,8 +292,8 @@ Links: Privacy (a short static page: we collect email, first name, role, interes
 
 # REPO NOTES (added during setup)
 - Run `npm run dev` (http://localhost:4321), `npm run build`, and `npm run check`. `/_components` is a dev-only preview of the conversation components.
-- Tokens, type scale, and conversation styles live in `src/styles/global.css`. Tailwind's default palette is cleared, so only the token colors exist as utilities (`bg-paper`, `text-devil`, `text-step-1`, `text-display`, ...).
-- Use `UserLine`, `ProductLine`, `Receipt`, and `PhoneFrame` from `src/components/` for anything conversational. Don't restyle speech marks per section.
-- Category content: copy lives in `src/data/categories.ts` (Why, What it does, hand-back card), `src/data/journey.ts` (steps and phone examples), and `src/data/samples.ts` (sample debates). Anything written for one tab carries `data-cat="startup"` or `data-cat="philosophy"`; global.css hides the other tab's. Scripts: `categories.ts` (tabs), `story.ts` (How it works), `sample.ts` (sample player). They talk through the `da:category` event.
+- Tokens live in `src/styles/tokens.css` (primitives, semantic roles, per-mode accents, dark mode); shared pieces (section head, band, tile, buttons, links, `list-check`, bubbles, receipts) in `src/styles/global.css`. Tailwind's default palette is cleared, so only the token colors exist as utilities (`bg-page`, `bg-surface`, `text-ink-2`, `text-accent`, `text-step-1`, `text-display`, ...).
+- Use `UserLine`, `ProductLine`, `Receipt`, and `PhoneFrame` from `src/components/` for anything conversational. Put conversations in a `bubbles` container; don't restyle bubbles per section.
+- Category content: copy lives in `src/data/categories.ts` (Why, What it does, hand-back card), `src/data/journey.ts` (steps and phone examples), and `src/data/samples.ts` (sample debates). Anything written for one tab carries `data-cat="startup"` or `data-cat="philosophy"`; global.css hides the other tab's. Scripts: `categories.ts` (the capsule and switching), `headroom.ts` (the capsule's hide-on-scroll), `story.ts` (How it works), `sample.ts` (sample player). They talk through the `da:category` event.
 - Section ids and nav links live in `src/config.ts`. Use `path()` / `sectionHref()` from there for links: the site is served from a sub-path on GitHub Pages.
 - Waitlist settings (`PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `PUBLIC_CONTACT_EMAIL`) are set as defaults in `.github/workflows/pages.yml` (all public values); GitHub Actions repository variables of the same name override them. Locally they live in the git-ignored `.env`.

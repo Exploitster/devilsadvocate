@@ -20,14 +20,8 @@
   --color-on-accent: var(--on-accent);
   --color-evidence: var(--evidence);
   --color-frame: var(--frame);
-  /* Legacy names, removed once nothing uses them. */
-  --color-paper: var(--page);
-  --color-ink-muted: var(--ink-2);
-  --color-rule: var(--line);
 
   --font-sans: var(--font-stack);
-  --font-product: var(--font-stack);
-  --font-user: var(--font-stack);
 
   --text-step-n1: var(--step--1);
   --text-step-n1--line-height: 1.43;
@@ -49,8 +43,6 @@
   --spacing-indent: var(--indent);
   --max-width-measure: var(--measure);
 
-  --radius-control: var(--r-control);
-  --radius-chip: var(--r-chip);
   --radius-tile: var(--r-tile);
   --radius-pill: var(--r-pill);
 }
@@ -168,21 +160,22 @@
     border-image: conic-gradient(var(--accent-tint) 0 0) fill 0 / / 0 100vmax;
   }
 
-  /* Centered section heading with an optional lead, the default. */
+  /* Centered section heading with an optional lead line, the default. */
   .section-head {
     max-width: 46rem;
     margin-inline: auto;
     text-align: center;
   }
-  .lead {
+  .section-lead {
     margin-top: 1rem;
     font-size: var(--step-1);
     line-height: 1.33;
     letter-spacing: -0.01em;
     color: var(--ink-2);
   }
-  .section-head .lead {
+  .section-head .section-lead {
     margin-inline: auto;
+    text-wrap: balance;
     max-width: 36rem;
   }
 
@@ -263,6 +256,35 @@
      readers. Text links only, never buttons. */
   .link-more::after {
     content: '\00a0›' / '';
+  }
+
+  /* A list with a check in a soft circle, in the tab's colour. */
+  .list-check {
+    --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.3l3 3 6-6.3' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    display: grid;
+    gap: 0.75rem;
+  }
+  .list-check > li {
+    position: relative;
+    padding-left: 2rem;
+  }
+  .list-check > li::before,
+  .list-check > li::after {
+    content: '';
+    position: absolute;
+    top: 0.1em;
+    left: 0;
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .list-check > li::before {
+    border-radius: 50%;
+    background: var(--accent-soft);
+  }
+  .list-check > li::after {
+    background: var(--accent);
+    -webkit-mask: var(--check) center / 100% no-repeat;
+    mask: var(--check) center / 100% no-repeat;
   }
 
   .sr-only-text {

@@ -27,10 +27,13 @@ The share image (`public/og.png`), touch icon, and `favicon.ico` are pre-rendere
 
 | Path | What it is |
 | --- | --- |
-| `src/styles/global.css` | color tokens (light and dark), type scale, Tailwind theme mapping, conversation styles |
+| `src/styles/tokens.css` | design tokens: colors (light, dark, and each mode's accent), type scale, shape, motion |
+| `src/styles/global.css` | Tailwind theme mapping, base styles, shared pieces (tiles, buttons, chat bubbles, receipts) |
+| `docs/design-language.md` | the design language for the site and the product app |
 | `src/layouts/Base.astro` | document shell, self-hosted fonts, nav, footer |
-| `src/components/UserLine.astro` | the user's voice: Bricolage, teal mark, flush left |
-| `src/components/ProductLine.astro` | the product's voice: Fraunces, raspberry mark, indented |
+| `src/components/UserLine.astro` | the user's voice: plain text, or a right-hand bubble inside a chat |
+| `src/components/ProductLine.astro` | the product's voice: plain text, or a left-hand grey bubble inside a chat |
+| `src/components/CategoryTabs.astro` | the floating Philosophy / Startup capsule (with `src/scripts/categories.ts` and `headroom.ts`) |
 | `src/components/Receipt.astro` | inline citation chip, the only thing that is yellow |
 | `src/components/PhoneFrame.astro` | static phone screen for mockups |
 | `src/pages/index.astro` | the page's sections, in order |

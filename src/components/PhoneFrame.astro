@@ -49,10 +49,12 @@ const bottom = Astro.slots.has('bottom') ? (await Astro.slots.render('bottom')).
     margin: 0;
   }
 
+  /* A plain rounded device: no notch or buttons, nothing brand-specific. */
   .phone__bezel {
-    padding: 0.625rem;
-    border-radius: 2.5rem;
+    padding: 0.5rem;
+    border-radius: 2.75rem;
     background: var(--frame);
+    box-shadow: var(--shadow-lift);
   }
 
   .phone__screen {
@@ -61,27 +63,29 @@ const bottom = Astro.slots.has('bottom') ? (await Astro.slots.render('bottom')).
     flex-direction: column;
     min-height: 34rem;
     overflow: hidden;
-    border-radius: 1.875rem;
+    border-radius: 2.25rem;
     background: var(--surface);
     color: var(--ink);
   }
 
   .phone__bar {
-    padding: 1.125rem 1.125rem 0.75rem;
-    border-bottom: 1px solid var(--rule);
+    padding: 1.25rem 1.125rem 0.75rem;
+    text-align: center;
+    background: var(--glass);
+    box-shadow: inset 0 -1px 0 var(--line);
   }
 
   .phone__title {
-    font-family: var(--font-product);
-    font-size: 1.0625rem;
-    font-weight: 580;
+    font-size: 1rem;
+    font-weight: 600;
     line-height: 1.3;
+    letter-spacing: -0.01em;
   }
 
   .phone__subtitle {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     line-height: 1.4;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
 
   .phone__body {
@@ -89,18 +93,18 @@ const bottom = Astro.slots.has('bottom') ? (await Astro.slots.render('bottom')).
     flex: 1;
     flex-direction: column;
     gap: 0.875rem;
-    padding: 1rem 1.125rem 1.25rem 0.875rem;
+    padding: 1rem 0.875rem 1.25rem;
   }
 
   .phone__bottom {
     padding: 0.75rem 1rem 1.125rem;
-    border-top: 1px solid var(--rule);
+    box-shadow: inset 0 1px 0 var(--line);
   }
 
   .phone__caption {
     margin-top: 0.75rem;
     font-size: 0.875rem;
     line-height: 1.45;
-    color: var(--ink-muted);
+    color: var(--ink-2);
   }
 </style>

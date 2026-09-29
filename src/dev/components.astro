@@ -10,8 +10,8 @@ import PhoneFrame from '../components/PhoneFrame.astro';
 
 <Base title="Components">
   <div class="container-page space-y-16 py-16">
-    <section class="space-y-6">
-      <h2>Lines, size lg (hero)</h2>
+    <section class="bubbles space-y-3">
+      <h2>Lines as bubbles, size lg (hero)</h2>
       <UserLine size="lg">I'm building food delivery for college hostels. The big apps made it, so will I.</UserLine>
       <ProductLine size="lg">Love the confidence. Quick question first: who's paying? The students, or their parents' wallets?</ProductLine>
       <ProductLine size="lg">
@@ -22,7 +22,7 @@ import PhoneFrame from '../components/PhoneFrame.astro';
     </section>
 
     <section class="space-y-6">
-      <h2>Lines, size md (FAQ)</h2>
+      <h2>Lines as plain text, size md (FAQ)</h2>
       <UserLine speaker={false}>Isn't this just another AI chatbot with an attitude?</UserLine>
       <ProductLine speaker={false}>
         Most chatbots are trained to be agreeable. We're built to find the other side, and we bring receipts: a curated
@@ -32,7 +32,7 @@ import PhoneFrame from '../components/PhoneFrame.astro';
 
     <section class="space-y-6">
       <h2>Phone frame, size sm</h2>
-      <div class="flex flex-wrap gap-10">
+      <div class="bubbles flex flex-wrap gap-10">
         <PhoneFrame label="Mockup: step 6 in idea mode" subtitle="Challenge my idea" caption="Illustrative mockup.">
           <UserLine size="sm">Food delivery for college hostels. The big apps did it, so there's clearly demand.</UserLine>
           <ProductLine size="sm">

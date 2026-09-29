@@ -2,9 +2,9 @@
 import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
 ---
 
-<header class="site-header sticky top-0 z-40 border-b border-rule bg-paper">
+<header class="site-header sticky top-0 z-40">
   <nav aria-label="Main" class="container-page flex h-(--header-h) items-center gap-2 sm:gap-3">
-    <a href={sectionHref(SECTIONS.hero)} class="logo mr-auto whitespace-nowrap rounded-sm font-product text-[1.1875rem] sm:text-[1.3rem] font-[580] tracking-[-0.01em] no-underline">
+    <a href={sectionHref(SECTIONS.hero)} class="logo mr-auto whitespace-nowrap rounded-sm text-[1.0625rem] sm:text-[1.125rem] font-semibold tracking-[-0.02em] no-underline">
       {SITE.name}
     </a>
 
@@ -12,7 +12,7 @@ import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
       {
         NAV_LINKS.map((link) => (
           <li>
-            <a href={link.href} class="nav-link inline-flex min-h-11 items-center whitespace-nowrap rounded-sm px-3 font-medium no-underline">
+            <a href={link.href} class="nav-link inline-flex min-h-11 items-center whitespace-nowrap rounded-sm px-3 text-[0.9375rem] no-underline">
               {link.label}
             </a>
           </li>
@@ -22,7 +22,7 @@ import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
 
     {
       WAITLIST_ON && (
-        <a href={sectionHref(SECTIONS.waitlist)} class="btn-primary header-cta !min-h-11 !px-3.5 !text-[0.9375rem] lg:ml-2">
+        <a href={sectionHref(SECTIONS.waitlist)} class="btn-primary header-cta !min-h-10 !px-4 !text-[0.875rem] lg:ml-2">
           Join the waitlist
         </a>
       )
@@ -30,7 +30,7 @@ import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
 
     <button
       type="button"
-      class="menu-toggle inline-flex size-11 shrink-0 items-center justify-center rounded-control border border-rule lg:hidden"
+      class="menu-toggle inline-flex size-11 shrink-0 items-center justify-center rounded-pill lg:hidden"
       aria-expanded="false"
       aria-controls="mobile-menu"
       aria-label="Menu"
@@ -43,12 +43,12 @@ import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
     </button>
   </nav>
 
-  <div id="mobile-menu" class="mobile-menu border-t border-rule bg-paper lg:hidden">
+  <div id="mobile-menu" class="mobile-menu lg:hidden">
     <ul class="container-page flex flex-col py-2" role="list">
       {
         NAV_LINKS.map((link) => (
           <li>
-            <a href={link.href} class="flex min-h-12 items-center border-b border-rule text-step-1 font-medium no-underline">
+            <a href={link.href} class="menu-link flex min-h-12 items-center text-step-1 font-semibold no-underline">
               {link.label}
             </a>
           </li>
@@ -68,11 +68,27 @@ import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
 </header>
 
 <style>
-  .nav-link:hover,
-  .logo:hover {
-    text-decoration-line: underline;
-    text-decoration-color: var(--rule);
-    text-decoration-thickness: 2px;
+  /* Glass: the page shows through, softly blurred, over a hairline. */
+  .site-header {
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  .nav-link {
+    color: var(--ink-2);
+    transition: color 200ms ease;
+  }
+  .nav-link:hover {
+    color: var(--ink);
+  }
+
+  .menu-toggle {
+    color: var(--ink);
+  }
+  .menu-toggle:hover {
+    background: var(--surface-2);
   }
 
   /* Two bars become a cross while the menu is open. */
@@ -105,12 +121,20 @@ import { NAV_LINKS, SECTIONS, SITE, WAITLIST_ON, sectionHref } from '../config';
 
   /* Without JavaScript the links stay in view as a plain list. With it,
      the list becomes a dropdown under the header. */
+  li + li > .menu-link {
+    box-shadow: inset 0 1px 0 var(--line);
+  }
   :global(.js) .mobile-menu {
     position: absolute;
     inset-inline: 0;
     top: 100%;
     display: none;
-    border-bottom: 1px solid var(--rule);
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow:
+      inset 0 -1px 0 var(--line),
+      0 12px 24px rgb(0 0 0 / 0.06);
   }
   :global(.js) .mobile-menu[data-open] {
     display: block;
