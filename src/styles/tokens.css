@@ -109,7 +109,6 @@
   /* The capsule's band: 52px control + breathing room. Also what
      scroll-padding keeps clear, so a revealed capsule never covers focus. */
   --tabs-h: 4.25rem;
-  --indent: 0;
 
   --r-tile: 1.375rem; /* 22px on phones, 28px from tablet */
   --r-card: 1.125rem;

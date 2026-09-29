@@ -40,7 +40,6 @@
 
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-gap);
-  --spacing-indent: var(--indent);
   --max-width-measure: var(--measure);
 
   --radius-tile: var(--r-tile);
@@ -179,22 +178,6 @@
     max-width: 36rem;
   }
 
-  /* Heading on the left, content on the right, from desktop up. */
-  .split {
-    display: grid;
-    gap: 2rem;
-  }
-  .split__head {
-    max-width: 18ch;
-  }
-  @media (min-width: 64rem) {
-    .split {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      column-gap: clamp(3rem, 6vw, 6rem);
-      align-items: start;
-    }
-  }
-
   /* Flat tile: white on the page, like a card without the shadow. */
   .tile {
     border-radius: var(--r-tile);
@@ -310,9 +293,6 @@
   .line {
     display: block;
     max-width: var(--measure);
-  }
-  .line__mark {
-    display: none;
   }
   .line__body > :where(p, ul, ol) + :where(p, ul, ol) {
     margin-top: 0.5em;

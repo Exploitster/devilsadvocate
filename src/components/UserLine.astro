@@ -20,6 +20,5 @@ const { as: Tag = 'div', bodyAs: Body = 'p', size = 'md', speaker = 'You', class
 ---
 
 <Tag {...rest} class:list={['line', 'line--user', `line--${size}`, className]}>
-  <span class="line__mark" aria-hidden="true">“</span>
   <Body class="line__body">{speaker && <span class="sr-only-text">{speaker}: </span>}<slot /></Body>
 </Tag>
