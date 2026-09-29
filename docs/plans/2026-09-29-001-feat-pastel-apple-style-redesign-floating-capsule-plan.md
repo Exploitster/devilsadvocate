@@ -8,6 +8,52 @@ detail: comprehensive
 
 # ✨ feat: Pastel, Apple-style redesign with a floating category capsule
 
+## Enhancement Summary
+
+**Deepened on:** 2026-09-29
+**Sections enhanced:** 7 (Decisions, Design tokens, Floating capsule, Switch
+feedback, Component table, Technical considerations, Phases/Acceptance)
+**Reviewers used (in parallel):** frontend races reviewer, performance oracle,
+architecture strategist, code-simplicity reviewer, visual-design review
+(frontend-design + ui-ux-pro-max skills, with a WCAG contrast script), best
+practices researcher (W3C APG/WCAG techniques, MDN, headroom.js, Apple font
+licence, via their GitHub sources).
+**Not run, by design:** Rails/Python/Ruby reviewers, data/migration/schema/
+deployment agents (no database or backend in this change), Figma sync and
+design-implementation reviewers (no Figma source), README writer, git
+history and issue analysts (no issues; history known), learnings researcher
+(no `docs/solutions/`). Running them on a static CSS/TS redesign would only
+return "not applicable".
+
+### Key improvements
+1. **Two real bugs caught before coding.** (a) Moving the pre-paint script
+   to `<head>` as drafted would let `categories.ts` resync from the default
+   radio and undo `?for=philosophy`, and a bad `?for=` value would show both
+   categories. (b) The new sticky offset would make `anchor()` always return
+   null, silently breaking keep-your-place.
+2. **A contrast-verified palette** replacing the draft values (five draft
+   pairs failed AA or had no margin), dark mode included.
+3. **A robust headroom design**: sentinel IntersectionObserver for in-flow
+   vs stuck, accumulated-distance threshold, clamped `scrollY` (iOS bounce),
+   jump detection, forced states for switches / anchor jumps / focus /
+   dialog, no fixed timers.
+4. **Performance guards**: font fallback metrics for Inter, no animated
+   tokens or section colours, blur ≤ 16 px, `overflow-x: clip` for slides.
+5. **Scope trimmed** where it didn't serve the request (extra icons, section
+   re-arrangements, dev preview), kept where it does (toast, category card,
+   Inter, design doc; reasons below).
+
+### New considerations discovered
+- Sticky elements keep their flow space; the capsule band (~60 px) stays in
+  the layout at its natural position, so `--tabs-h` is kept as that band's
+  height and the offsets that use it stay (simplifies Phase 2).
+- WCAG 2.2 F110/C43: a revealed sticky bar must not cover the focused
+  element; `scroll-padding-top` keeps header + capsule band.
+- SC 1.4.11: the selected segment needs a ≥ 3:1 cue (accent ring/label), not
+  just a white thumb on glass (1.03:1).
+- Safari 26 tints its toolbars from sticky elements at the top edge; check
+  the glass header on iOS when possible (not testable in this sandbox).
+
 ## Overview
 
 Redesign the whole Devils Advocate site in a clean, soothing, pastel look
@@ -57,6 +103,40 @@ From the request, in the user's words, and what we see in the code:
 | D7 | **Rounded tiles are allowed** (Apple bento style); remove "no card grids" and "identical rounded cards" from the Avoid list. Keep: no gradient washes, no all-caps eyebrows, no emoji decoration, no real brand names. Chevrons (›) are allowed on text links only. | The requested language relies on tiles; keep the rules that still apply. |
 | D8 | **No behaviour changes** to the waitlist, the story's scroll logic, or the sample player, beyond styling and the capsule offset. | Limits regression risk on the parts that already pass 50+ checks. |
 
+### Research Insights — decisions revised after review
+
+- **D1 (type), confirmed with changes:** stack is
+  `-apple-system, BlinkMacSystemFont, "Inter Variable", "Inter Fallback",
+  "Segoe UI", Roboto, Arial, sans-serif`. No `system-ui` (Windows CJK
+  issues; Tailwind dropped it). SF Pro's licence forbids embedding. Import
+  only `@fontsource-variable/inter/wght.css`, `font-display: swap`, **no
+  preload**, plus an `"Inter Fallback"` `@font-face` on `local(Arial)` with
+  `size-adjust`/`ascent-override`/`descent-override`/`line-gap-override`
+  computed from Inter's metrics (target CLS < 0.02). Most of the audience is
+  on Android, so Inter is kept (the simplicity review suggested system fonts
+  only; rejected for cross-platform consistency).
+- **D2/D3 (palette/accent), revised:** drop the neutral sky theme. The
+  default accent is **mint** (Startup is the default tab), so no-JS and
+  first paint match and nothing flashes. One accent at a time plus butter
+  for evidence. Final values under "Design tokens".
+- **D4 (bubbles), refined:** product bubble is grey (`#E9E9EB` / dark
+  `#2C2C2E`), not white on a white tile; user bubble is the accent-soft. Style
+  via `:where(.chat)` context rules; avatar via `::before`, no new slot.
+- **D5 (headroom), refined:** see "Floating capsule → Research Insights".
+- **D7 (tiles), revised:** grid tiles are **flat** (white on `#F5F5F7`, no
+  shadow), as on Apple's own pages; shadows only on floating things (capsule,
+  toast, dialog, phone). The Avoid rule against identical shadowed cards
+  stays.
+- **Kept against the simplicity review:** the toast and the category card
+  (they answer the explicit complaint that a switch isn't identifiable; the
+  card also carries the tab hints), `docs/design-language.md` (the user wants
+  the language to govern future builds; the doc names tokens and never
+  repeats hex values, CLAUDE.md points to it, so there's no triple upkeep).
+- **Cut or trimmed per the simplicity review:** icons everywhere except the
+  capsule segments (and the same glyph on the category card); no content
+  re-arrangement (restyle sections in place); dev preview only if it breaks;
+  favicon recolour + OG re-render stay as the last, small task.
+
 ## Proposed Solution
 
 ### Design tokens (`src/styles/global.css`, `:root` + dark)
@@ -90,6 +170,56 @@ contrast script (every text/background pair ≥ 4.5:1, large text ≥ 3:1).
 Type scale (fluid, Apple-like): hero 44→80 px / 700 / −0.03em; section
 title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
 −0.01em; small 14 px; caption 13 px (nothing under 12 px).
+
+#### Research Insights — final token values (supersede the draft above)
+
+Verified with a WCAG script (ratios in brackets). Draft failures fixed:
+`--ink-2 #6E6E73` on the 100 tints (4.13–4.32), mint-700 on mint-100
+(exactly 4.50), filled inputs with no ≥ 3:1 edge (1.09), secondary text on
+glass over dark content (≤ 3.35), 50-tints too close to the page to show a
+switch.
+
+| Role | Light | Dark |
+|---|---|---|
+| page / surface / surface-2 | `#F5F5F7` / `#FFFFFF` / `#FBFBFD` | `#000000` / `#1C1C1E` / `#2C2C2E` |
+| text | `#1D1D1F` (16.8 on surface) | `#F5F5F7` (15.6) |
+| text-2 (one token everywhere) | `#636368` (5.49 on page; 4.72 lavender-soft; 4.93 mint-soft) | `#B4B4B9` (≥ 4.74 everywhere) |
+| hairline (decorative) | `rgb(0 0 0 / .08)` | `rgb(255 255 255 / .12)` |
+| control border (inputs, checkbox) | `#8A8A8F` (3.44) | `#7C7C80` (4.09) |
+| lavender tint / soft / deep / hover | `#F1EEFF` / `#E6E1FF` / `#5B4BD0` / `#4B3CB8` | `#2F2D39` / `#413F54` / `#B8ADFF` |
+| mint tint / soft / deep / hover | `#EAF7F0` / `#D3F0E2` / `#1B7050` / `#155C41` | `#26322E` / `#2F493F` / `#6DD6A6` |
+| on-accent (button text) | `#FFFFFF` (6.25 lavender, 6.03 mint) | `#1D1D1F` (8.38 / 9.47) |
+| evidence (butter) | `#FFF0B3` + text (14.7) | `#49411A` + text (9.39) |
+| bubble user / product | accent-soft / `#E9E9EB` | accent-soft / `#2C2C2E` |
+| selected segment label | accent-deep on accent-soft (4.93 / 4.98) | (5.07 / 5.51) |
+
+Tints (ΔE 8 / 6.6 from the page, 13.7 between the two) are for section
+bands; soft (ΔE 26) for the card, thumb and bubbles.
+
+**Token architecture** (`src/styles/tokens.css`, imported by `global.css`;
+a future app imports the same file):
+- Tier 1, primitives: `--lavender-50 … -700`, `--mint-…`, `--gray-…`,
+  `--butter-…`. Per-hue role aliases that flip in dark mode (`--lavender-strong`,
+  `--lavender-soft`, …) so each category mapping is written once.
+- Tier 2, semantic: `--color-bg`, `--color-surface`, `--color-text`,
+  `--color-text-2`, `--color-line`, `--color-control`, `--color-accent`,
+  `--color-accent-hover`, `--color-on-accent`, `--color-accent-soft`,
+  `--color-accent-tint`, `--color-evidence`.
+- Tier 3, component: `--bubble-user-bg`, `--bubble-product-bg`,
+  `--capsule-thumb`, `--capsule-glass`, …
+- Category scope in one selector list per category:
+  `html[data-category='philosophy'], html:not(.js):has(#cat-philosophy:checked), [data-cat='philosophy'] { --color-accent: …; }`
+  (the no-JS path switches the accent too; a `[data-cat]` block stays
+  correctly themed mid-animation). `:root` defaults to mint.
+- `@theme inline` exposes semantic tokens only; a grep gate keeps primitive
+  names out of components.
+
+**Type & spacing (Apple-like on the web):** headings weight 600, tracking
+−0.02em (−0.015em for section titles), `text-wrap: balance`. Hero 40→80 px /
+1.05; section title 32→56 px / 1.07; lead 19→24 px / 1.33 / 400; body 17 px /
+1.47 / −0.012em; small 14 / 1.43; caption 13. 8-pt spacing: section padding
+`clamp(64px, 10vw, 140px)`; tile padding 24→40 px, gap 12→20 px, radius 22 px
+(phone) / 28 px (desktop); container 1080 px, text column 680 px.
 
 ### Floating capsule (`CategoryTabs.astro` + `src/scripts/categories.ts`)
 
@@ -126,6 +256,65 @@ title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
   never covers the rail (`HowItWorks.astro`, `story.ts` `pinTop()`, the
   `scroll-margin-top` rules on `.cats__tab input` and `.rail-step`).
 
+#### Research Insights — capsule and headroom (supersede the bullets above where they differ)
+
+**Visual spec.** 4 px padding, fully rounded, 44 px segments (52 px tall),
+equal-width segments ≥ 148 px (304 px total; fits 328 px at 360 px). Each
+segment: 18 px line icon (1.75 stroke) + 15 px / 600 label; unselected label
+in text colour (not text-2). Thumb: accent-soft fill, 1.5 px accent-deep
+ring (the ≥ 3:1 selected cue for SC 1.4.11), shadow
+`0 1px 3px rgb(0 0 0 / .12)`, slides with `transform` over 380 ms, overshoot
+≤ 1.2. Glass `rgb(255 255 255 / .80)` / dark `rgb(28 28 30 / .80)`,
+`saturate(180%) blur(16px)` with `-webkit-` prefix, 1 px inner hairline,
+shadow `0 1px 2px rgb(0 0 0 / .06), 0 8px 24px rgb(0 0 0 / .10)`. Opaque
+under `@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))`,
+`prefers-reduced-transparency`, `prefers-contrast: more` and
+`forced-colors`. Hints ("Life decisions and beliefs") never inside the
+capsule; they live on the category card, linked with `aria-describedby`.
+`will-change: transform` on the capsule's inner element only.
+
+**Structure.** `main > .cats-lead`, then a zero-height **sentinel**
+(`[data-cats-sentinel]`), then the sticky wrapper `main > [data-cats]`
+(its parent must span the page, so no extra wrapper around it together with
+the card/toast). Sticky `top: calc(var(--header-h) + 8px)`. The transform
+goes on an inner `.capsule`, never on `[data-cats]`. Sticky keeps its flow
+space, so `--tabs-h` is **kept** as the capsule band height; the offsets
+that use it (`scroll-padding-top`, story `--pin-top`, the two
+`scroll-margin-top` rules) stay, and satisfy WCAG 2.2 C43 (a revealed bar
+never covers the focused element; avoids failure F110).
+
+**State.** `[data-cats][data-headroom="in-flow|shown|hidden"]`:
+- in-flow vs stuck from an IntersectionObserver on the sentinel (no layout
+  reads in the scroll path);
+- direction in a rAF callback that reads only `scrollY`, clamped to
+  `[0, scrollHeight − innerHeight]` (read every frame; iOS toolbar changes
+  `innerHeight`), always storing the clamped value (bounce never counts as
+  "up");
+- change state after an **accumulated** distance ≥ 8 px since the last
+  direction change (slow scrolls move < 6 px per frame);
+- any per-frame |Δ| > 0.5 × `innerHeight` is a **jump**: rebaseline, no
+  change (covers stage↔list collapse, orientation, form→note shrink).
+
+**Forced states (no fixed timers):**
+- `da:category` (fires synchronously after the keep-place `scrollBy`):
+  force `shown`, rebaseline on the next frame.
+- Same-page anchor clicks (`a[href*="#"]` resolving to this page) and story
+  rail `[data-go]` clicks: force `hidden` and lock until `scrollend`
+  (fallback: 150 ms without a scroll event).
+- `focusin` inside the capsule: `shown` with transitions off (runs before
+  the browser scrolls it into view, so no lurch).
+- `dialog[open]` or the mobile menu open: freeze; rebaseline one frame after
+  close (the thank-you's `note.focus()` scrolls the page).
+- Reduced motion: same states, no transitions.
+
+**Module boundaries.** A small generic `src/scripts/headroom.ts`
+(`initHeadroom(el, sentinel)`) writing only `data-headroom`; `categories.ts`
+owns the tabs, calls it, and reads `data-headroom` in `anchor()` (line
+measured from the header's bottom plus the capsule's visible height; the old
+"top ≤ header + 1" check goes). `story.ts` `pinTop()` reads
+`parseFloat(getComputedStyle(pin).top)` instead of re-deriving the formula;
+recheck the `STAGE` min-heights.
+
 ### Making the switch unmistakable (`categories.ts`, `global.css`)
 
 1. Accent tokens swap on `<html data-category>`; tinted section backgrounds
@@ -144,6 +333,39 @@ title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
 5. Move the pre-paint category script from `CategoryTabs.astro` into the
    `<head>` in `Base.astro`, so the header and hero get the right accent
    before first paint (no flash of the wrong color with `?for=`).
+
+#### Research Insights — switching
+
+- **Source of truth is `<html data-category>`.** The head script sets it
+  from `?for=` against an allowlist (`philosophy|startup`, else
+  `startup`). A tiny inline script right after the radios checks the
+  matching radio; `initCategories()` reads the category **from `<html>`**
+  and syncs the radios, never the reverse (fixes the deep-link revert and
+  the load-time whole-document restyle).
+- **What animates:** never the tokens themselves (`@property` animation
+  restyles the page every frame) and never `color`/`background-color` on
+  whole sections. Bands swap instantly; only small elements transition
+  (buttons, thumb, rail, links, 250 ms). The content slide carries the
+  motion.
+- **Slide:** 16 px over 360 ms (not 24 px), direction from the chosen tab;
+  skipped under reduced motion; `data-switch` cleared by one restartable
+  500 ms timer (`animationend` bubbles from chat/phone animations, doesn't
+  fire on hidden elements or under reduced motion). `main { overflow-x:
+  clip }` (not `hidden`, which breaks sticky). The story root and anything
+  containing sticky/fixed children: opacity only. No `will-change` on
+  `[data-cat]`.
+- **Ordering in `apply()`:** read (anchor), then write `data-category` and
+  `data-switch` together, one forced layout for the keep-place correction,
+  then the toast and the headroom update after the reads.
+- **Toast:** the live region exists, empty, from page load
+  (`role="status"`); announce ~500 ms after the last change (arrow keys
+  select on every press); show it only when the category card is off
+  screen; 4 s; opaque surface (not glass); short copy: "Now showing
+  Philosophy, from Why this exists to the hand-back card." The radio already
+  announces "Philosophy, selected", so the toast only adds where the change
+  happened.
+- **INP target:** < 200 ms with 4× CPU slowdown (one full-document style
+  recalc per click on ~2,800 elements is acceptable).
 
 ### Component-by-component
 
@@ -194,6 +416,24 @@ title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
 - **No-JS:** radios still switch via `:has()`; capsule sits in flow (no
   headroom); category card switches via the same `[data-cat]` rules.
 - **Security:** none (static site; no new data flows).
+
+### Research Insights — performance and platform
+
+- Fonts: see D1 (fallback metrics; no preload). Measure with Inter, since
+  Lighthouse and most visitors will download it. Target LCP ≤ 2.0 s,
+  CLS < 0.02.
+- `backdrop-filter` only on the header and capsule, blur ≤ 16 px. The toast
+  and the mobile menu are opaque: a nested blur inside the header can't see
+  the page and is large.
+- Never animate `box-shadow` (fade a shadow layer's opacity if needed); keep
+  the h1 the largest text and never animate it in (LCP element stability).
+- Headroom listener reads only `scrollY` and writes one attribute on the
+  capsule wrapper (not `<html>`), so it needn't be merged with `story.ts`.
+- Phase-safe renames: about 250 references to `--devil`, `--paper`,
+  `--ink-muted`, `font-product`, … exist today. Phase 1 aliases the old names
+  to the new semantic tokens so the site renders at every phase; Phase 4
+  deletes the aliases with a grep gate (zero matches). Delete Hero's
+  `.debate .line--*` overrides once bubbles are context-styled.
 
 ## System-Wide Impact
 
@@ -275,6 +515,18 @@ title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
 - [ ] Waitlist, story, samples, hero debate behave exactly as before.
 - [ ] No real brand names on the site (brand scan).
 
+### Non-functional (additions from review)
+- [ ] `?for=philosophy` survives load (no revert to Startup); `?for=junk`
+      shows Startup only.
+- [ ] Keep-your-place still ±2 px with the floating capsule shown or hidden.
+- [ ] Capsule never reveals over the target of a nav/anchor/rail jump; never
+      toggles from iOS-style bounce; `focusin` reveals it without a page jump.
+- [ ] Selected segment has a ≥ 3:1 non-text cue; glass goes opaque under
+      reduced transparency / more contrast / forced colours.
+- [ ] No layout-affecting transitions; INP < 200 ms at 4× CPU; CLS < 0.02.
+- [ ] Grep gate: no old token names (`--devil`, `--paper`, `font-product`, …)
+      and no primitive colour names outside `tokens.css`.
+
 ### Non-functional
 - [ ] Lighthouse mobile: performance ≥ 90 (target ≥ 95), a11y/BP/SEO 100.
 - [ ] axe clean and zero horizontal overflow at 360/390/768/1024/1440,
@@ -311,6 +563,13 @@ title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
 
 ## Documentation Plan
 
+> Research insight: split `docs/design-language.md` into **Product
+> language** (tokens, bubbles, receipts, accent per *mode*: idea = mint,
+> decision = lavender, so the product app can reuse it without the site's
+> tabs) and **Site patterns** (capsule, toast, tiles, section rhythm). Name
+> tokens, never repeat hex values; `src/styles/tokens.css` is the single
+> source. No JSON tokens until something other than CSS needs them.
+
 - `docs/design-language.md` (new): tokens, type, color roles, tiles,
   bubbles, capsule/headroom, motion, dark mode, accessibility rules, do/don't.
   Written to apply to the product app as well.
@@ -339,3 +598,16 @@ title 34→56 px / 700 / −0.025em; lead 21→28 px / 500; body 17 px / 1.47 /
   `[data-toggle]`, `[data-fill]`), `waitlist.ts` (`[data-waitlist]`,
   `[data-done]`, `[data-done-note]`, …).
 - Brief: `CLAUDE.md` (DESIGN LANGUAGE, Motion, Avoid, Quality floor).
+
+### External references (from the best-practices review; read via their GitHub sources because the sandbox blocks the sites)
+
+- ARIA APG tabs pattern (why a radio group fits better here): https://github.com/w3c/aria-practices/blob/main/content/patterns/tabs/tabs-pattern.html
+- MDN, ARIA live regions: https://github.com/mdn/content/blob/main/files/en-us/web/accessibility/aria/guides/live_regions/index.md
+- WCAG 2.1 SC 1.4.11 Non-text Contrast: https://github.com/w3c/wcag/blob/main/understanding/21/non-text-contrast.html
+- WCAG F110 (sticky content obscuring focus) and C43 (scroll-padding): https://github.com/w3c/wcag/blob/main/techniques/failures/F110.html, https://github.com/w3c/wcag/blob/main/techniques/css/C43.html
+- headroom.js (tolerance, bounce handling): https://github.com/WickyNilliams/headroom.js/blob/master/src/Headroom.js
+- `scrollend` support: https://github.com/web-platform-dx/web-features/blob/main/features/scrollend.yml.dist
+- Apple fonts licence (SF Pro not embeddable): https://developer.apple.com/fonts/
+- Font fallback metric overrides: https://github.com/GoogleChrome/developer.chrome.com/blob/main/site/en/blog/framework-tools-font-fallback/index.md
+- `backdrop-filter` compat: https://github.com/mdn/browser-compat-data/blob/main/css/properties/backdrop-filter.json
+- `prefers-reduced-transparency` support: https://github.com/web-platform-dx/web-features/blob/main/features/prefers-reduced-transparency.yml.dist
