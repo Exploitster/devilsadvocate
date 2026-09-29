@@ -120,17 +120,17 @@ const icon = (cat: Category, size: number) =>
      usable. */
   .cats {
     position: sticky;
-    top: calc(var(--header-h) + 0.5rem);
+    top: calc(var(--header-h) + 0.75rem);
     z-index: 30;
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: 1.25rem;
     pointer-events: none;
   }
 
   .capsule {
     pointer-events: auto;
-    padding: 4px;
+    padding: 6px;
     border-radius: var(--r-pill);
     background: var(--glass);
     -webkit-backdrop-filter: var(--glass-blur);
@@ -159,17 +159,20 @@ const icon = (cat: Category, size: number) =>
     }
   }
 
+  /* Two segments with a little air between them. */
   .capsule__set {
+    --seg-gap: 4px;
     position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: var(--seg-gap);
   }
 
   /* The sliding thumb: the accent's soft tint with an accent ring, so the
      chosen side reads at a glance (and at 3:1 or more). */
   .capsule__thumb {
     position: absolute;
-    inset: 0 50% 0 0;
+    inset: 0 calc(50% + var(--seg-gap) / 2) 0 0;
     border-radius: var(--r-pill);
     background: var(--capsule-thumb);
     box-shadow:
@@ -180,7 +183,7 @@ const icon = (cat: Category, size: number) =>
       background-color 250ms ease;
   }
   .capsule__set:has(#cat-startup:checked) .capsule__thumb {
-    transform: translateX(100%);
+    transform: translateX(calc(100% + var(--seg-gap)));
   }
   @media (prefers-reduced-motion: reduce) {
     .capsule__thumb {
@@ -195,9 +198,10 @@ const icon = (cat: Category, size: number) =>
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    min-width: 9.25rem;
-    height: 2.75rem;
-    padding: 0 1.125rem;
+    /* Room around the label, but never wider than a 360px screen allows. */
+    min-width: min(10.5rem, 40vw);
+    height: 3rem;
+    padding: 0 clamp(0.875rem, 3.5vw, 1.5rem);
     border-radius: var(--r-pill);
     font-size: 0.9375rem;
     font-weight: 600;
@@ -222,9 +226,9 @@ const icon = (cat: Category, size: number) =>
     cursor: pointer;
   }
   /* The page keeps room at the top for the header and this band
-     (scroll-padding). Without this, focusing a tab (or anything scrolling
-     one into view) while it's stuck there counts as "hidden under the
-     bar" and scrolls the page. */
+     (scroll-padding). Without this, focusing a tab while it's stuck there
+     counts as "hidden under the bar" and scrolls the page. (categories.ts
+     also undoes any scroll the browser still starts on focus.) */
   .capsule__seg,
   .capsule__seg input {
     scroll-margin-top: calc(-1 * (var(--header-h) + var(--tabs-h) + 1rem));
@@ -234,7 +238,7 @@ const icon = (cat: Category, size: number) =>
   .cats-cards {
     display: flex;
     justify-content: center;
-    margin-top: 1.25rem;
+    margin-top: 1.5rem;
   }
   .cats-card {
     display: flex;

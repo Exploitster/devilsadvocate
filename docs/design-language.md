@@ -128,7 +128,7 @@ semantic HTML.
   notice under the capsule. Your reading position is kept.
 - **Section head:** a centered heading with an optional `section-lead`.
 - **Bands:** alternate sections sit on a full-width `--accent-tint` band
-  (`band` class): Why this exists, How it works, What you get, the waitlist.
+  (`band` class): Why this exists, How it works, Pricing, the waitlist.
 - **Tiles:** white, flat, `--r-tile`. The one big tile per section may use
   `--accent-soft` (the promise, "What changed").
 - **Buttons:** `btn-primary` (accent fill) for the main action,

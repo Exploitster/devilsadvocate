@@ -106,9 +106,9 @@
   --measure: 42.5rem; /* 680px text column */
   --container: 67.5rem; /* 1080px */
   --header-h: 3.25rem; /* 52px */
-  /* The capsule's band: 52px control + breathing room. Also what
+  /* The capsule's band: a 60px control, 12px below the header. Also what
      scroll-padding keeps clear, so a revealed capsule never covers focus. */
-  --tabs-h: 4.25rem;
+  --tabs-h: 4.75rem;
 
   --r-tile: 1.375rem; /* 22px on phones, 28px from tablet */
   --r-card: 1.125rem;

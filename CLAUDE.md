@@ -6,7 +6,7 @@ Hard scope rules:
 - Static site only: no backend of our own, no API routes, no login, no checkout, no payment code. The only database is the insert-only Supabase waitlist table.
 - Pricing is shown in USD; the site has no checkout, and every pricing button leads to the waitlist.
 - Do NOT build any product functionality. No working chatbot. Any product screens shown on the page are illustrative mockups made of HTML and CSS.
-- The only interactive pieces allowed: the hero animation, the Philosophy / Startup tabs under the hero, the scroll-driven "How it works", the "Try a sample debate" player (pre-written samples with pre-filled answers: no input, nothing generated), the mobile menu, FAQ toggles, and the waitlist form (which writes to the Supabase waitlist table).
+- The only interactive pieces allowed: the hero animation, the Philosophy / Startup tabs under the hero, the scroll-driven "How it works", the "Try a sample debate" player (pre-written debates the reader plays by tapping pre-written answer chips: no text input, nothing generated, every chip has a scripted reply), the mobile menu, FAQ toggles, and the waitlist form (which writes to the Supabase waitlist table).
 
 The site copy lives in `docs/copy.md` (the COPY section below, kept in sync).
 
@@ -58,8 +58,8 @@ Mode capsule (the Philosophy / Startup tabs):
 Motion:
 - The hero debate plays once on load.
 - "How it works" moves with the scroll: a sticky stage (numbered rail, step text, phone) where scrolling advances the steps and each phone screen animates in. Rail numbers jump to a step. On screens too short for the stage it's a list whose phones play as they arrive.
-- The sample debate plays when its chat scrolls into view, pauses when it leaves, and has Pause / Play / Play again.
-- No fade-in-on-scroll for regular sections. Respect prefers-reduced-motion by showing the final state instantly: "How it works" becomes a plain list, the sample shows the finished conversation and card, and switching tabs doesn't slide.
+- The sample debate waits for the reader: each tapped answer gets a short typing pause, then its scripted reply.
+- No fade-in-on-scroll for regular sections. Respect prefers-reduced-motion by showing the final state instantly: "How it works" becomes a plain list, sample replies arrive at once, and switching tabs doesn't slide.
 
 Avoid (these make a page look generated):
 - All-caps eyebrow labels above headings.
@@ -83,7 +83,7 @@ Quality floor: responsive from 360px up, visible keyboard focus, WCAG AA contras
 # COPY (use it; you may tighten wording, but keep the tone and the facts)
 
 ## Nav
-Logo: Devils Advocate (semibold wordmark). Links: How it works, Try a sample, Pricing, FAQ. Button: Join the waitlist.
+Logo: Devils Advocate (semibold wordmark). Links: Try a sample, How it works, Pricing, FAQ. Button: Join the waitlist.
 
 ## Hero
 Headline: Your idea sounds great. That's what worries us.
@@ -102,8 +102,28 @@ Hero debate animation script (an illustration; plays once):
 Line above: What are you bringing? The rest of the page changes to match.
 Tabs (a floating capsule; see DESIGN LANGUAGE): Philosophy (Life decisions and beliefs) / Startup (Ideas and work proposals). Startup is selected first, since it continues the hero's example. The choice is kept in the link as ?for=philosophy.
 Mode card under the capsule: Philosophy: "Challenge my decision" / "For big life calls and the beliefs you've never questioned." Startup: "Challenge my idea" / "For startup ideas, side projects, and work proposals."
-Notice after a switch, when the mode card is off screen: "Now showing {Philosophy|Startup}, from Why this exists to the hand-back card."
-Everything from "Why this exists" to "What you get" is written for the chosen tab. Pricing, What we won't do, FAQ, and the waitlist are shared; the waitlist's example idea follows the tab (Startup: "e.g. A pet-food brand for city apartments"; Philosophy: "e.g. Should I take the job in another city?").
+Notice after a switch, when the mode card is off screen: "Now showing {Philosophy|Startup}, from the sample debate to the hand-back card."
+Everything from "Try a sample debate" to "What you get" is written for the chosen tab. Pricing, What we won't do, FAQ, and the waitlist are shared; the waitlist's example idea follows the tab (Startup: "e.g. A pet-food brand for city apartments"; Philosophy: "e.g. Should I take the job in another city?").
+
+## Try a sample debate (just below the category tabs; section id #try-a-sample)
+Heading: Try a sample debate
+Subhead (ProductLine): Pick a sample, then tap your answers and watch it argue back. Every reply is written in advance, so there's nothing to type. The real thing argues with whatever you bring.
+Three sample tabs per category. Each is played by the reader, one tap at a time, with no text input: Devils Advocate greets you and you tap the opening; it asks three clarifying questions, each with three answer chips, and replies to whichever you tap; then the real question (and a bias, for startups); you tap "Fair. What's strong in it?" for what's genuinely strong, then "Now the other side." for the strongest other side with receipts; it invites a push back and offers three, each with its own reply; you tap "Give me my hand-back card." and it ends with "Here's your hand-back card. No verdict. Your call, always." plus Start over / Try another sample.
+Every chip has a scripted reply (the decision tree lives in src/data/samples.ts), and every path ends in a complete card: each answer adds its own open question to the card, and each push back sets the cheapest test and what you walk out with.
+Progress steps under the chat follow along: Your idea (or Your decision) / Questions / Real question / Both sides / Push back / Hand-back. A Start over button sits in the chat's top bar.
+Beside the chat, a hand-back card fills in from your answers (Your position, What's genuinely strong, Toughest counterpoints, Open questions only you can answer, Cheapest test this month); under it, "What changed": Walked in with / Walking out with.
+Without JavaScript, each sample shows one finished path (the first answer at every step) and its card.
+Samples (full scripts, with every answer and reply, in src/data/samples.ts; the tests and "walking out with" below are for the first push back):
+STARTUP (made-up startups, labeled "Illustrative examples for this demo"):
+- Hostel food delivery (Startup idea). Real question: Does demand survive three months of holidays a year? Bias: survivorship. Cheapest test: Run late-night delivery in one hostel for two weeks. Count the repeat orders. Walked in with: An app for every hostel in the city. Walking out with: Two weeks of late-night orders in one hostel, before writing any code.
+- Flatmate bill-splitting (Startup idea). Real question: Is the pain big enough to pay for, or just big enough to complain about? Bias: availability. Cheapest test: Track bills by hand for ten flats for a month. See how many would pay to keep it. Walked in with: Six months building the app. Walking out with: One month doing it by hand for ten flats.
+- Build our own CRM (Work proposal). Real question: Is the subscription the real cost, or the developer time it takes to keep a new one alive? Bias: planning fallacy. Cheapest test: List the three things the current tool can't do, and check whether a setting or add-on does them. Walked in with: Pitch a six-month internal build. Walking out with: Pitch a one-week check of what the current tool can already do.
+PHILOSOPHY (real sources, paraphrased and labeled "Paraphrases, not quotes"):
+- Skip placements? (Life decision). Case for: Aristotle, Nicomachean Ethics, Book III; Sartre, Existentialism Is a Humanism. Other side: Aristotle, Nicomachean Ethics, Book VI; Seneca, Letters to Lucilius, 18; Kierkegaard, Either/Or, Part I. Cheapest test: Keep one offer open while you test for 8 weeks.
+- Move cities? (Life decision). Case for: Mill, On Liberty, Chapter III; Sartre, Existentialism Is a Humanism. Other side: Confucius, Analects, Book IV; Aristotle, Nicomachean Ethics, Book VIII. Cheapest test: Ask your parents what exactly they're afraid of, before you decide.
+- Money or meaning? (Belief). Case for: Aristotle, Nicomachean Ethics, Book I. Other side: Aristotle, Nicomachean Ethics, Book I; Epicurus, Principal Doctrines, 15; Seneca, Letters to Lucilius, 2. Cheapest test: Write down what enough is, in numbers, and what you'd do the day you hit it.
+Note under the samples: Startup: Samples use made-up startups, labeled as illustrative. The real thing cites sources. Philosophy: The sources are real; the lines are paraphrases, not quotes. The conversation is a sample.
+Then: "Want it to argue with your own idea?" (or "decision?") and a Join the waitlist button.
 
 ## Why this exists
 Heading (both tabs): The people who love you are terrible at this.
@@ -142,7 +162,7 @@ What you can bring:
 
 ## How it works (scroll-driven, 7 steps, sequence numbers are appropriate here)
 Heading: Here's exactly what will happen when you show up
-Under it (stage only): Keep scrolling. It plays out one step at a time. Link: Skip to the sample debate
+Under it (stage only): Keep scrolling. It plays out one step at a time. Link: Skip to the hand-back card
 Each step's body is written per tab (Startup / Philosophy):
 1. Pick your fight. Choose Challenge my idea. That's it. / Choose Challenge my decision. That's it.
 2. Spill it. Type out your idea like you'd pitch it to a friend. Long rants welcome. Typos forgiven. / Type out the decision like you'd text a friend at 2 a.m. Long rants welcome. Typos forgiven.
@@ -165,24 +185,6 @@ PHILOSOPHY (skipping placements to build a startup):
 - Step 4: "The real question: is a secure path worth giving up for a chance you'd regret not taking?"
 - Step 5 case for you: "Many traditions prize courage and writing your own story." Other side, as receipt chips: Aristotle, Nicomachean Ethics, Book VI: practical wisdom means weighing your circumstances, not just your desire. Seneca, Letters to Lucilius: rehearse the worst case before you act, so it can't ambush you. (Paraphrases, not quotes.)
 - Step 6 user pushback: "But I'll regret it forever if I don't try." Reply: "Maybe. Could you keep one offer open while you test for 8 weeks? Regret has a cheaper version."
-
-## Try a sample debate (after How it works; section id #try-a-sample)
-Heading: Try a sample debate
-Subhead (ProductLine): Pick a sample and watch it argue. The answers are already filled in, so there's nothing to type. The real thing argues with whatever you bring.
-Three sample tabs per category. Each plays: the opening types itself out; three clarifying questions, each answered by "tapping" a pre-filled quick reply; the real question (and a bias, for startups); what's genuinely strong; the strongest other side with receipts; a push back and a reply; then "Here's your hand-back card. No verdict. Your call, always."
-Stage tabs under the chat move on their own and jump when pressed: Your idea (or Your decision) / Questions / Real question / Both sides / Push back / Hand-back.
-Beside the chat, a hand-back card fills in as the debate goes (Your position, What's genuinely strong, Toughest counterpoints, Open questions only you can answer, Cheapest test this month); under it, "What changed": Walked in with / Walking out with.
-Samples (full scripts in src/data/samples.ts):
-STARTUP (made-up startups, labeled "Illustrative examples for this demo"):
-- Hostel food delivery (Startup idea). Real question: Does demand survive three months of holidays a year? Bias: survivorship. Cheapest test: Run late-night delivery in one hostel for two weeks. Count the repeat orders. Walked in with: An app for every hostel in the city. Walking out with: Two weeks of late-night orders in one hostel, before writing any code.
-- Flatmate bill-splitting (Startup idea). Real question: Is the pain big enough to pay for, or just big enough to complain about? Bias: availability. Cheapest test: Track bills by hand for ten flats for a month. See how many would pay to keep it. Walked in with: Six months building the app. Walking out with: One month doing it by hand for ten flats.
-- Build our own CRM (Work proposal). Real question: Is the subscription the real cost, or the developer time it takes to keep a new one alive? Bias: planning fallacy. Cheapest test: List the three things the current tool can't do, and check whether a setting or add-on does them. Walked in with: Pitch a six-month internal build. Walking out with: Pitch a one-week check of what the current tool can already do.
-PHILOSOPHY (real sources, paraphrased and labeled "Paraphrases, not quotes"):
-- Skip placements? (Life decision). Case for: Aristotle, Nicomachean Ethics, Book III; Sartre, Existentialism Is a Humanism. Other side: Aristotle, Nicomachean Ethics, Book VI; Seneca, Letters to Lucilius, 18; Kierkegaard, Either/Or, Part I. Cheapest test: Keep one offer open while you test for 8 weeks.
-- Move cities? (Life decision). Case for: Mill, On Liberty, Chapter III; Sartre, Existentialism Is a Humanism. Other side: Confucius, Analects, Book IV; Aristotle, Nicomachean Ethics, Book VIII. Cheapest test: Ask your parents what exactly they're afraid of, before you decide.
-- Money or meaning? (Belief). Case for: Aristotle, Nicomachean Ethics, Book I. Other side: Aristotle, Nicomachean Ethics, Book I; Epicurus, Principal Doctrines, 15; Seneca, Letters to Lucilius, 2. Cheapest test: Write down what enough is, in numbers, and what you'd do the day you hit it.
-Note under the samples: Startup: Samples use made-up startups, labeled as illustrative. The real thing cites sources. Philosophy: The sources are real; the lines are paraphrases, not quotes. The conversation is a sample.
-Then: "Want it to argue with your own idea?" (or "decision?") and a Join the waitlist button.
 
 ## What you get
 Heading: The hand-back card

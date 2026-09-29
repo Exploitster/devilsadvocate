@@ -80,7 +80,48 @@ export function initCategories(): void {
 
   // Tabbing into the capsule while it's hidden: show it at once, before
   // the browser scrolls it into view (so the page doesn't lurch).
-  capsule?.addEventListener('focusin', () => headroom.show(true));
+  // Focus landing on a stuck capsule (keyboard, a scripted click): browsers
+  // work out "scroll into view" from where a sticky bar would sit if it
+  // weren't stuck, and scroll the page away a few frames later. It's
+  // already on screen, so for a moment after focus, undo any scroll the
+  // reader didn't make. A switch's keep-your-place correction moves the
+  // target with it (apply() updates focusY).
+  let focusY: number | null = null;
+  let guardUntil = 0;
+  capsule?.addEventListener('focusin', () => {
+    headroom.show(true);
+    if (headroom.state === 'in-flow') return;
+    focusY = window.scrollY;
+    guardUntil = performance.now() + 400;
+  });
+  const release = () => (focusY = null);
+  ['wheel', 'touchstart', 'keydown'].forEach((type) =>
+    window.addEventListener(type, (e) => {
+      // Arrow keys inside the capsule change the tab; they don't scroll.
+      if (type === 'keydown' && capsule?.contains(e.target as Node)) return;
+      release();
+    }, { passive: true, capture: true }),
+  );
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (focusY === null) return;
+      if (performance.now() > guardUntil) return release();
+      if (Math.abs(window.scrollY - focusY) > 0.5) {
+        window.scrollTo({ top: focusY, behavior: 'instant' as ScrollBehavior });
+        headroom.show(true);
+        requestAnimationFrame(() => headroom.rebase());
+      }
+    },
+    { passive: true },
+  );
+
+  // A tap or click still switches (the click checks the radio), but
+  // doesn't move focus into the capsule, so the browser never scrolls the
+  // page to "reveal" a tab that's already in view.
+  capsule?.addEventListener('mousedown', (event) => {
+    if ((event.target as Element).closest('.capsule__seg')) event.preventDefault();
+  });
 
   // A modal dialog or the mobile menu: nothing to hide or show meanwhile.
   const pausers = [
@@ -125,7 +166,7 @@ export function initCategories(): void {
       const rect = card?.getBoundingClientRect();
       const cardVisible = rect && rect.bottom > headerHeight() && rect.top < window.innerHeight;
       if (cardVisible) return;
-      toast.textContent = `Now showing ${LABEL[cat]}, from Why this exists to the hand-back card.`;
+      toast.textContent = `Now showing ${LABEL[cat]}, from the sample debate to the hand-back card.`;
       toast.setAttribute('data-show', '');
       toastClear = window.setTimeout(() => {
         toast.removeAttribute('data-show');
@@ -153,6 +194,7 @@ export function initCategories(): void {
       const shift = held.el.getBoundingClientRect().top - held.top;
       if (shift) window.scrollBy({ top: shift, behavior: 'instant' as ScrollBehavior });
     }
+    if (focusY !== null) focusY = window.scrollY;
 
     const url = new URL(location.href);
     if (cat === DEFAULT) url.searchParams.delete('for');

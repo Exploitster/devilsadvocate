@@ -1,311 +1,300 @@
 /**
- * "Try a sample debate". Plays a pre-written conversation: the opening
- * types itself out, the product thinks and replies, the sample taps its
- * pre-filled answer to each question, and the hand-back card fills in as
- * stages complete. The stage tabs follow along, and jump when pressed.
+ * "Try a sample debate", played by the reader. At each step Devils
+ * Advocate says something and offers a few reply chips; tapping one says
+ * it, and the scripted reply to that exact chip follows. The tree (see
+ * src/data/samples.ts) is closed: there's no text input, every chip has a
+ * reply, and every path ends in a complete hand-back card.
  *
- * - Starts when the chat scrolls into view; pauses while it's out of view.
- * - Pause / Play / Play again, and the stage tabs, are the controls.
- * - Reduced motion: the finished conversation and card, nothing plays.
+ *   greeting → your opening → 3 questions (3 answers each)
+ *     → real question → what's strong → the other side
+ *     → push back (3 choices) → hand-back card → start over / another
  *
- * CSS sets the starting state (messages folded, card waiting), so this
- * writes nothing to the page until a sample starts.
+ * The page's markup is one finished path (for no JavaScript); this clears
+ * it and plays from the start. Everything is inserted as text, never HTML.
+ * With reduced motion, replies arrive at once and nothing animates.
  */
 
-import { CATEGORY_EVENT } from './categories';
+import type { Choice, PushBack, Sample } from '../data/samples';
 
-const TYPE_MS = 24;
-const THINK_MS = 800;
-
-type Kind = 'type' | 'product' | 'chips' | 'user';
-
-interface Player {
-  panel: HTMLElement;
-  log: HTMLElement;
-  msgs: HTMLElement[];
-  dots: HTMLElement;
-  stages: HTMLButtonElement[];
-  parts: HTMLElement[];
-  toggle: HTMLButtonElement;
-  fills: HTMLElement | null;
-  next: number;
-  stage: number;
-  state: 'idle' | 'playing' | 'paused' | 'done';
-  byUser: boolean; // paused by the Pause button, not by scrolling away
-  timer: number;
+interface Payload {
+  greeting: string;
+  next: { strong: string; other: string; card: string; restart: string; another: string };
+  done: string;
+  push: string;
+  sample: Sample;
 }
+
+type Part = 'position' | 'strong' | 'counter' | 'open' | 'test' | 'change';
+
+interface Game {
+  data: Payload;
+  log: HTMLElement;
+  replies: HTMLElement;
+  stages: HTMLElement[];
+  parts: Map<Part, HTMLElement>;
+  open: HTMLElement;
+  test: HTMLElement;
+  after: HTMLElement;
+  fills: HTMLElement | null;
+  answers: Choice[];
+  run: number; // bumped on restart, so a pending reply from the old run is dropped
+}
+
+const THINK_MS = 650;
+const THINK_LONG_MS = 1000; // before the longer messages (both sides)
 
 export function initSamples(): void {
   const roots = Array.from(document.querySelectorAll<HTMLElement>('[data-try]'));
   if (!roots.length) return;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  const players = new Map<HTMLElement, Player>();
-  const playerFor = (panel: HTMLElement): Player => {
-    let p = players.get(panel);
-    if (p) return p;
-    p = {
-      panel,
-      log: panel.querySelector<HTMLElement>('[data-log]')!,
-      msgs: Array.from(panel.querySelectorAll<HTMLElement>('.msg[data-kind]')),
-      dots: panel.querySelector<HTMLElement>('[data-dots]')!,
-      stages: Array.from(panel.querySelectorAll<HTMLButtonElement>('[data-go]')),
-      parts: Array.from(panel.querySelectorAll<HTMLElement>('[data-fill]')),
-      toggle: panel.querySelector<HTMLButtonElement>('[data-toggle]')!,
-      fills: panel.querySelector<HTMLElement>('[data-fills]'),
-      next: 0,
-      stage: -1,
-      state: 'idle',
-      byUser: false,
-      timer: 0,
-    };
-    players.set(panel, p);
-    p.toggle.addEventListener('click', () => onToggle(p!));
-    p.stages.forEach((b, n) => b.addEventListener('click', () => jump(p!, n)));
+  // ---------------------------------------------------------------- //
+  // Building messages (text only)                                     //
+  // ---------------------------------------------------------------- //
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string) => {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  };
+
+  // Same markup as UserLine / ProductLine, so the bubble styles apply.
+  const line = (who: 'user' | 'product', ...content: (Node | string)[]) => {
+    const wrap = el('div', `line line--${who} line--sm`);
+    const body = el('div', 'line__body');
+    body.append(el('span', 'sr-only-text', who === 'user' ? 'You: ' : 'Devils Advocate: '));
+    content.forEach((c) => body.append(typeof c === 'string' ? el('p', undefined, c) : c));
+    wrap.append(body);
+    return wrap;
+  };
+
+  const receipt = (source: string) => {
+    const chip = el('span', 'receipt');
+    chip.append(el('span', 'sr-only-text', 'Source: '), source);
+    return chip;
+  };
+
+  const leadPara = (lead: string, text: string) => {
+    const p = el('p');
+    p.append(el('strong', 'lead', lead), ' ', text);
     return p;
   };
 
+  const strongMsg = (s: Sample) => {
+    const list = el('ul', 'points');
+    list.setAttribute('role', 'list');
+    s.caseFor.forEach((c) => {
+      const li = el('li', undefined, c.text);
+      if (c.source) li.append(' ', receipt(c.source));
+      list.append(li);
+    });
+    return [el('p', 'lead', 'What’s genuinely strong in your case:'), list];
+  };
+
+  const otherMsg = (s: Sample) => {
+    const list = el('ul', 'points points--receipts');
+    list.setAttribute('role', 'list');
+    s.otherSide.forEach((r) => {
+      const li = el('li');
+      li.append(receipt(r.source), el('span', 'points__text', r.point));
+      list.append(li);
+    });
+    return [el('p', 'lead', 'The strongest other side:'), list, el('p', 'msg__note', s.note)];
+  };
+
   // ---------------------------------------------------------------- //
-  // Showing things                                                    //
+  // The chat                                                          //
   // ---------------------------------------------------------------- //
 
-  const nearBottom = (log: HTMLElement) => log.scrollHeight - log.scrollTop - log.clientHeight < 96;
-  const follow = (p: Player, wasNear: boolean) => {
-    if (!wasNear) return;
-    const go = () => p.log.scrollTo({ top: p.log.scrollHeight, behavior: reduce.matches ? 'auto' : 'smooth' });
+  const wait = (ms: number) => new Promise<void>((done) => window.setTimeout(done, reduce.matches ? 0 : ms));
+
+  const toBottom = (g: Game) => {
+    const go = () => g.log.scrollTo({ top: g.log.scrollHeight, behavior: reduce.matches ? 'auto' : 'smooth' });
     requestAnimationFrame(go);
-    window.setTimeout(go, 360); // again once the message has unfolded
   };
 
-  const show = (p: Player, el: HTMLElement, instant = false) => {
-    const wasNear = nearBottom(p.log);
-    el.toggleAttribute('data-instant', instant);
-    el.setAttribute('data-shown', '');
-    if (!instant) follow(p, wasNear);
-  };
-  const hide = (el: HTMLElement) => {
-    el.setAttribute('data-instant', '');
-    el.removeAttribute('data-shown');
+  const append = (g: Game, node: HTMLElement) => {
+    const item = el('li', 'msg');
+    item.setAttribute('data-new', '');
+    const inner = el('div', 'msg__in');
+    inner.append(node);
+    item.append(inner);
+    g.log.append(item);
+    toBottom(g);
+    return item;
   };
 
-  const setStage = (p: Player, n: number) => {
-    if (n === p.stage) return;
-    p.stage = n;
-    p.stages.forEach((b, k) => {
-      if (k === n) b.setAttribute('aria-current', 'step');
-      else b.removeAttribute('aria-current');
-      b.dataset.state = k < n ? 'done' : '';
+  const you = (g: Game, text: string) => append(g, line('user', text));
+
+  // Devils Advocate "thinks" (typing dots), then says it. Resolves false
+  // if the debate was restarted meanwhile.
+  const say = async (g: Game, content: (Node | string)[], think = THINK_MS) => {
+    const run = g.run;
+    const dots = el('span', 'chat-dots');
+    dots.setAttribute('aria-hidden', 'true');
+    dots.append(el('span'), el('span'), el('span'));
+    const dotsItem = reduce.matches ? null : append(g, dots);
+    await wait(think);
+    dotsItem?.remove();
+    if (run !== g.run) return false;
+    append(g, line('product', ...content));
+    return true;
+  };
+
+  // Offer reply chips. `speak` chips are things you say (they appear as
+  // your message); the others are controls.
+  const offer = (g: Game, chips: { label: string; speak?: boolean; quiet?: boolean; pick: () => void }[]) => {
+    const hadFocus = g.replies.contains(document.activeElement);
+    g.replies.replaceChildren();
+    chips.forEach((c) => {
+      const b = el('button', c.quiet ? 'reply-chip reply-chip--quiet' : 'reply-chip', c.label);
+      b.type = 'button';
+      b.setAttribute('data-new', '');
+      b.addEventListener('click', () => {
+        // The chip goes away; keep focus in the reply area (not the page)
+        // until the next chips arrive.
+        const focused = g.replies.contains(document.activeElement);
+        g.replies.replaceChildren();
+        if (focused) g.replies.focus({ preventScroll: true });
+        if (c.speak !== false) you(g, c.label);
+        c.pick();
+      });
+      g.replies.append(b);
     });
-    fill(p, n);
+    // Keyboard users carry on from where they were.
+    if (hadFocus) (g.replies.firstElementChild as HTMLElement | null)?.focus({ preventScroll: true });
   };
 
-  // A part of the card fills once the stage that produces it is over.
-  const fill = (p: Player, stage: number) =>
-    p.parts.forEach((part) => part.toggleAttribute('data-filled', Number(part.dataset.fill) < stage));
-
-  const setToggle = (p: Player) => {
-    p.toggle.textContent = p.state === 'playing' ? 'Pause' : p.state === 'done' ? 'Play again' : 'Play';
-    if (p.fills) p.fills.hidden = p.state === 'done';
-  };
-
-  // Put the conversation back to "nothing said yet".
-  const reset = (p: Player) => {
-    clearTimeout(p.timer);
-    p.msgs.forEach((m) => {
-      hide(m);
-      m.querySelectorAll('.chip').forEach((c) => c.classList.remove('is-picked'));
-      const typed = m.querySelector<HTMLElement>('[data-type]');
-      if (typed?.dataset.full) typed.textContent = typed.dataset.full;
+  const setStage = (g: Game, n: number) =>
+    g.stages.forEach((st, k) => {
+      if (k === n) st.setAttribute('aria-current', 'step');
+      else st.removeAttribute('aria-current');
+      st.dataset.state = k < n ? 'done' : '';
     });
-    hide(p.dots);
-    p.next = 0;
-    p.stage = -1;
-    setStage(p, 0);
-    p.log.scrollTop = 0;
-    p.state = 'idle';
-    setToggle(p);
+
+  const fill = (g: Game, part: Part, on = true) => g.parts.get(part)?.toggleAttribute('data-filled', on);
+
+  // ---------------------------------------------------------------- //
+  // The tree                                                          //
+  // ---------------------------------------------------------------- //
+
+  const start = (g: Game) => {
+    g.run += 1;
+    g.answers = [];
+    g.log.replaceChildren();
+    g.parts.forEach((_, part) => fill(g, part, false));
+    if (g.fills) g.fills.hidden = false;
+    setStage(g, 0);
+    const s = g.data.sample;
+    append(g, line('product', g.data.greeting));
+    offer(g, [{ label: s.opening, pick: () => opened(g) }]);
   };
 
-  // Everything at once: the finished conversation and card.
-  const finishNow = (p: Player) => {
-    clearTimeout(p.timer);
-    p.msgs.forEach((m) => {
-      const typed = m.querySelector<HTMLElement>('[data-type]');
-      if (typed?.dataset.full) typed.textContent = typed.dataset.full;
-      if (m.dataset.kind === 'chips') hide(m);
-      else show(p, m, true);
-    });
-    hide(p.dots);
-    p.next = p.msgs.length;
-    setStage(p, p.stages.length - 1);
-    fill(p, Infinity);
-    p.state = 'done';
-    setToggle(p);
+  const opened = (g: Game) => {
+    fill(g, 'position');
+    setStage(g, 1);
+    ask(g, 0);
+  };
+
+  const ask = async (g: Game, n: number) => {
+    const q = g.data.sample.questions[n]!;
+    if (!(await say(g, [q.q]))) return;
+    offer(
+      g,
+      q.choices.map((choice) => ({ label: choice.say, pick: () => answered(g, n, choice) })),
+    );
+  };
+
+  const answered = async (g: Game, n: number, choice: Choice) => {
+    g.answers[n] = choice;
+    if (!(await say(g, [choice.reply]))) return;
+    if (n + 1 < g.data.sample.questions.length) return ask(g, n + 1);
+
+    // All three answered: the open questions they leave go on the card.
+    g.open.replaceChildren(...g.answers.map((a) => el('li', undefined, a.open)));
+    fill(g, 'open');
+    setStage(g, 2);
+    const s = g.data.sample;
+    const real = [leadPara('The real question:', s.realQuestion)];
+    if (s.bias) real.push(leadPara('Bias spotted:', s.bias));
+    if (!(await say(g, real))) return;
+    offer(g, [{ label: g.data.next.strong, pick: () => strong(g) }]);
+  };
+
+  const strong = async (g: Game) => {
+    setStage(g, 3);
+    if (!(await say(g, strongMsg(g.data.sample), THINK_LONG_MS))) return;
+    fill(g, 'strong');
+    offer(g, [{ label: g.data.next.other, pick: () => other(g) }]);
+  };
+
+  const other = async (g: Game) => {
+    if (!(await say(g, otherMsg(g.data.sample), THINK_LONG_MS))) return;
+    fill(g, 'counter');
+    setStage(g, 4);
+    if (!(await say(g, [g.data.push]))) return;
+    offer(
+      g,
+      g.data.sample.pushbacks.map((p) => ({ label: p.say, pick: () => pushed(g, p) })),
+    );
+  };
+
+  const pushed = async (g: Game, p: PushBack) => {
+    if (!(await say(g, [p.reply]))) return;
+    g.test.textContent = p.test;
+    g.after.textContent = p.after;
+    offer(g, [{ label: g.data.next.card, pick: () => card(g) }]);
+  };
+
+  const card = async (g: Game) => {
+    setStage(g, 5);
+    if (!(await say(g, [g.data.done]))) return;
+    fill(g, 'test');
+    fill(g, 'change');
+    setStage(g, 6); // every step done
+    if (g.fills) g.fills.hidden = true;
+    offer(g, [
+      { label: g.data.next.restart, speak: false, quiet: true, pick: () => start(g) },
+      { label: g.data.next.another, speak: false, quiet: true, pick: () => another(g) },
+    ]);
   };
 
   // ---------------------------------------------------------------- //
-  // Playing                                                           //
+  // Samples and tabs                                                  //
   // ---------------------------------------------------------------- //
 
-  const wait = (p: Player, ms: number, then: () => void) => {
-    clearTimeout(p.timer);
-    p.timer = window.setTimeout(() => p.state === 'playing' && then(), ms);
-  };
+  const games = new Map<HTMLElement, Game>();
+  const tabsOf = new Map<HTMLElement, HTMLButtonElement[]>();
 
-  const readTime = (el: HTMLElement) => Math.min(2600, 700 + (el.textContent?.trim().length ?? 0) * 16);
-
-  const step = (p: Player) => {
-    const el = p.msgs[p.next];
-    if (!el) {
-      hide(p.dots);
-      setStage(p, p.stages.length - 1);
-      fill(p, Infinity);
-      p.state = 'done';
-      setToggle(p);
-      return;
-    }
-    const kind = el.dataset.kind as Kind;
-    // Already on screen (resuming after a pause): move on.
-    if (kind !== 'chips' && el.hasAttribute('data-shown')) {
-      p.next += 1;
-      step(p);
-      return;
-    }
-    setStage(p, Number(el.dataset.stage));
-    const advance = () => {
-      p.next += 1;
-      step(p);
+  const setUpPanel = (panel: HTMLElement) => {
+    const json = panel.querySelector<HTMLScriptElement>('[data-sample-json]');
+    if (!json?.textContent) return;
+    const partEls = Array.from(panel.querySelectorAll<HTMLElement>('[data-part]'));
+    const g: Game = {
+      data: JSON.parse(json.textContent) as Payload,
+      log: panel.querySelector<HTMLElement>('[data-log]')!,
+      replies: panel.querySelector<HTMLElement>('[data-replies]')!,
+      stages: Array.from(panel.querySelectorAll<HTMLElement>('[data-stage-n]')),
+      parts: new Map(partEls.map((p) => [p.dataset.part as Part, p])),
+      open: panel.querySelector<HTMLElement>('[data-open]')!,
+      test: panel.querySelector<HTMLElement>('[data-test]')!,
+      after: panel.querySelector<HTMLElement>('[data-after]')!,
+      fills: panel.querySelector<HTMLElement>('[data-fills]'),
+      answers: [],
+      run: 0,
     };
-
-    if (kind === 'type') {
-      const typed = el.querySelector<HTMLElement>('[data-type]')!;
-      const text = typed.dataset.full ?? (typed.dataset.full = typed.textContent?.trim() ?? '');
-      typed.textContent = '';
-      show(p, el);
-      let n = 0;
-      const tick = () => {
-        n += 1;
-        typed.textContent = text.slice(0, n);
-        if (n < text.length) wait(p, TYPE_MS, tick);
-        else wait(p, 650, advance);
-      };
-      wait(p, 300, tick);
-    } else if (kind === 'product') {
-      // It thinks first: the dots sit at the bottom, then give way.
-      p.log.append(p.dots);
-      show(p, p.dots);
-      wait(p, THINK_MS, () => {
-        hide(p.dots);
-        show(p, el);
-        wait(p, readTime(el), advance);
-      });
-    } else if (kind === 'chips') {
-      show(p, el);
-      wait(p, 650, () => {
-        const pick = Number(el.dataset.pick);
-        el.querySelectorAll('.chip')[pick]?.classList.add('is-picked');
-        wait(p, 600, () => {
-          // The tapped answer becomes the user's line; the chips fold away.
-          el.removeAttribute('data-instant');
-          el.removeAttribute('data-shown');
-          advance();
-        });
-      });
-    } else {
-      show(p, el);
-      wait(p, 900, advance);
-    }
+    // New messages are read out as they arrive.
+    g.log.setAttribute('aria-live', 'polite');
+    g.log.setAttribute('aria-relevant', 'additions');
+    g.replies.tabIndex = -1;
+    panel.querySelector<HTMLButtonElement>('[data-restart]')?.addEventListener('click', () => start(g));
+    games.set(panel, g);
+    start(g);
   };
 
-  const play = (p: Player) => {
-    if (p.state === 'done' || p.state === 'idle') reset(p);
-    p.state = 'playing';
-    p.byUser = false;
-    setToggle(p);
-    step(p);
-  };
-
-  const pause = (p: Player, byUser: boolean) => {
-    if (p.state !== 'playing') return;
-    clearTimeout(p.timer);
-    // Finish anything half-typed, so a paused sample never reads cut off.
-    const typed = p.msgs[p.next]?.querySelector<HTMLElement>('[data-type]');
-    if (typed?.dataset.full && p.msgs[p.next]?.hasAttribute('data-shown')) {
-      typed.textContent = typed.dataset.full;
-      p.next += 1;
-    }
-    hide(p.dots);
-    p.state = 'paused';
-    p.byUser = byUser;
-    setToggle(p);
-  };
-
-  const resume = (p: Player) => {
-    p.state = 'playing';
-    p.byUser = false;
-    setToggle(p);
-    step(p);
-  };
-
-  const onToggle = (p: Player) => {
-    if (p.state === 'playing') pause(p, true);
-    else if (p.state === 'paused') resume(p);
-    else play(p);
-  };
-
-  // Jump to a stage: everything before it at once, then play from there.
-  const jump = (p: Player, n: number) => {
-    const first = p.msgs.findIndex((m) => Number(m.dataset.stage) >= n);
-    if (reduce.matches) {
-      p.msgs[first]?.scrollIntoView({ block: 'nearest' });
-      setStage(p, n);
-      return;
-    }
-    clearTimeout(p.timer);
-    hide(p.dots);
-    p.msgs.forEach((m, k) => {
-      const typed = m.querySelector<HTMLElement>('[data-type]');
-      if (typed?.dataset.full) typed.textContent = typed.dataset.full;
-      if (k < first && m.dataset.kind !== 'chips') show(p, m, true);
-      else hide(m);
-    });
-    p.next = first;
-    p.stage = -1;
-    setStage(p, n);
-    requestAnimationFrame(() => (p.log.scrollTop = p.log.scrollHeight));
-    p.state = 'playing';
-    p.byUser = false;
-    setToggle(p);
-    step(p);
-  };
-
-  // ---------------------------------------------------------------- //
-  // Tabs, visibility, categories                                      //
-  // ---------------------------------------------------------------- //
-
-  const activePanel = (root: HTMLElement) => root.querySelector<HTMLElement>('[data-sample]:not([hidden])')!;
-
-  // Each sample's chat window: it plays once enough of it is on screen,
-  // and pauses when it scrolls away (or its tab or category is hidden).
-  const watcher = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const panel = (entry.target as HTMLElement).closest<HTMLElement>('[data-sample]')!;
-        const p = playerFor(panel);
-        if (entry.isIntersecting) {
-          if (reduce.matches) continue;
-          if (p.state === 'idle') play(p);
-          else if (p.state === 'paused' && !p.byUser) resume(p);
-        } else {
-          pause(p, false);
-        }
-      }
-    },
-    { threshold: 0.4 },
-  );
-
-  const selectTab = (root: HTMLElement, tabs: HTMLButtonElement[], k: number, focus: boolean) => {
-    const before = activePanel(root);
+  const selectTab = (root: HTMLElement, k: number, focus: boolean) => {
+    const tabs = tabsOf.get(root)!;
     tabs.forEach((t, n) => {
       const on = n === k;
       t.setAttribute('aria-selected', String(on));
@@ -313,19 +302,26 @@ export function initSamples(): void {
       root.querySelector<HTMLElement>(`#${t.getAttribute('aria-controls')}`)!.hidden = !on;
     });
     if (focus) tabs[k]!.focus();
-    const now = activePanel(root);
-    if (now === before) return;
-    const old = playerFor(before);
-    pause(old, false);
-    if (reduce.matches) return;
-    reset(old);
-    reset(playerFor(now)); // the watcher starts it once it's on screen
   };
 
-  const setUp = (root: HTMLElement) => {
+  // "Try another sample": the next tab, from the start.
+  function another(g: Game) {
+    const panel = [...games].find(([, x]) => x === g)![0];
+    const root = panel.closest<HTMLElement>('[data-try]')!;
+    const tabs = tabsOf.get(root)!;
+    const k = (Number(panel.dataset.sample) + 1) % tabs.length;
+    const next = root.querySelector<HTMLElement>(`[data-sample="${k}"]`)!;
+    selectTab(root, k, false);
+    start(games.get(next)!);
+    tabs[k]!.focus({ preventScroll: true });
+  }
+
+  roots.forEach((root) => {
     const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sample-tab]'));
+    tabsOf.set(root, tabs);
+    root.querySelectorAll<HTMLElement>('[data-sample]').forEach(setUpPanel);
     tabs.forEach((tab, k) => {
-      tab.addEventListener('click', () => selectTab(root, tabs, k, false));
+      tab.addEventListener('click', () => selectTab(root, k, false));
       tab.addEventListener('keydown', (e) => {
         const last = tabs.length - 1;
         const to =
@@ -336,26 +332,8 @@ export function initSamples(): void {
           : -1;
         if (to < 0) return;
         e.preventDefault();
-        selectTab(root, tabs, to, true);
+        selectTab(root, to, true);
       });
     });
-
-    root.querySelectorAll<HTMLElement>('.chat').forEach((chat) => watcher.observe(chat));
-  };
-
-  roots.forEach(setUp);
-
-  // Switching category: stop the hidden one; the watcher starts the other.
-  window.addEventListener(CATEGORY_EVENT, () => {
-    roots.forEach((root) => {
-      if (root.getClientRects().length) return;
-      const p = playerFor(activePanel(root));
-      pause(p, false);
-    });
-  });
-
-  // Turning reduced motion on mid-play: show the finished state.
-  reduce.addEventListener('change', () => {
-    if (reduce.matches) players.forEach(finishNow);
   });
 }

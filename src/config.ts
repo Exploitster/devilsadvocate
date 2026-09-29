@@ -45,8 +45,8 @@ export const SECTIONS = {
 export const sectionHref = (id: string) => path(`/#${id}`);
 
 export const NAV_LINKS = [
-  { label: 'How it works', href: sectionHref(SECTIONS.howItWorks) },
   { label: 'Try a sample', href: sectionHref(SECTIONS.trySample) },
+  { label: 'How it works', href: sectionHref(SECTIONS.howItWorks) },
   { label: 'Pricing', href: sectionHref(SECTIONS.pricing) },
   { label: 'FAQ', href: sectionHref(SECTIONS.faq) },
 ];

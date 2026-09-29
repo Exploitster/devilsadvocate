@@ -70,9 +70,11 @@ export function initHeadroom(bar: HTMLElement, sentinel: HTMLElement, headerHeig
   const measure = () => {
     maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     // The bar sits its top margin below the sentinel; it sticks once its
-    // top reaches the line under the header.
-    const margin = parseFloat(getComputedStyle(bar).marginTop) || 0;
-    stuckAt = sentinel.getBoundingClientRect().top + window.scrollY + margin - (headerHeight() + 8);
+    // top reaches its sticky offset (read from CSS, so the two can't drift).
+    const style = getComputedStyle(bar);
+    const margin = parseFloat(style.marginTop) || 0;
+    const stickAt = parseFloat(style.top) || headerHeight();
+    stuckAt = sentinel.getBoundingClientRect().top + window.scrollY + margin - stickAt;
   };
 
   const tick = () => {
